@@ -61,7 +61,27 @@ Format: date, what changed, which files were affected.
 
 ---
 
-## 2026-06-09 -- Phase 2 refinements
+## 2026-06-09 -- Phase 1b: Migrate to Next.js
+
+**What changed:**
+- Full migration from Astro to Next.js. All Astro files removed and replaced with a fresh Next.js 16 project (TypeScript, Tailwind v4, App Router).
+- Dialogue character intro rebuilt in React -- no sprite, no background image. Speaker name tag ("aqib") above the dialogue box instead. All dialogue logic, typewriter, menu, arrow key nav, blip sounds, and "surprise me" fact sequence carried over.
+- [ talk ] persistent nav overlay carried over to TalkButton React component.
+- All 4 content pages (about, work, writing, library) rebuilt.
+- Root layout uses EB Garamond via next/font. Grain and vignette overlays preserved.
+- Build: `next build` clean, 6 routes, zero errors.
+
+**Files added/changed:**
+- `src/app/layout.tsx`, `globals.css`, `page.tsx` -- root layout and homepage
+- `src/app/about/page.tsx`, `work/page.tsx`, `writing/page.tsx`, `library/page.tsx` -- all content pages
+- `src/components/DialogueNav.tsx` -- React dialogue system
+- `src/components/TalkButton.tsx` -- React nav overlay
+- `src/components/PageFooter.tsx` -- shared footer links
+- All Astro files removed. `next.config.ts`, `tsconfig.json`, `postcss.config.mjs` added.
+
+---
+
+## 2026-06-09 -- Phase 2 refinements (Astro -- superseded by Next.js migration)
 
 **What changed:**
 - Dialogue sequence redesigned: sprite rises in from left, waves, then box appears -- no layout shift

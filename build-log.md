@@ -86,3 +86,22 @@ Build result: `npm run build` passed clean, 4 pages built, zero errors.
 - Plan: reinitialize site repo with Next.js + Tailwind (Phase 1b). Rebuild Phase 2 in Next.js, starting with scripted dialogue. AI layer added as a later phase once the structure is solid
 - All Phase 2 Astro work (components, pages, sprites) will be redone -- not lost, just rebuilt in the new framework
 - project-zero-brief.md in vault updated to reflect the new stack and expanded character concept
+
+---
+
+## 2026-06-09 -- Phase 1b: Next.js migration complete
+
+- Removed all Astro files (src/, .astro/, dist/, astro.config.mjs, node_modules, sprites)
+- Initialized fresh Next.js 16 project with TypeScript, Tailwind v4, App Router, src/ directory
+- Rebuilt all components and pages in React/TypeScript:
+  - `src/components/DialogueNav.tsx` -- full dialogue system as a React client component. Typewriter, multi-line advance, menu with arrow key nav, 8-bit blip sounds, "surprise me" fact with nav reveal. No sprite, no background image -- character represented by a small amber name tag above the dialogue box.
+  - `src/components/TalkButton.tsx` -- persistent [ talk ] overlay nav on all inner pages, keyboard nav, Escape to close
+  - `src/components/PageFooter.tsx` -- shared footer with email, linkedin, x, substack links
+  - `src/app/page.tsx` -- homepage, just the DialogueNav centered in full viewport height
+  - `src/app/about/page.tsx` -- full about page, honest personal text, drop cap
+  - `src/app/work/page.tsx` -- work page, KraftedX projects, earlier experience, skills grid, resume on request
+  - `src/app/writing/page.tsx` -- placeholder
+  - `src/app/library/page.tsx` -- placeholder
+  - `src/app/layout.tsx` -- root layout, EB Garamond via next/font, grain + vignette overlays
+  - `src/app/globals.css` -- all design tokens, grain/vignette, drop cap, ink-divider
+- Build result: `next build` passed clean, 6 routes, zero errors
