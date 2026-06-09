@@ -1,0 +1,430 @@
+---
+---
+
+<div id="dialogue-scene" class="flex items-start gap-5" style="width: 520px; max-width: 100%;">
+
+  <!-- Sprite: fixed left column -->
+  <div id="sprite-wrap" style="width: 64px; flex-shrink: 0; opacity: 0; transform: translateY(20px);">
+    <img
+      id="sprite"
+      src="/sprites/neutral.svg"
+      alt="aqib"
+      width="64"
+      height="96"
+      style="image-rendering: pixelated; display: block;"
+    />
+  </div>
+
+  <!-- Dialogue box: fixed dimensions -->
+  <div
+    id="dialogue-box"
+    style="flex: 1; opacity: 0; transform: translateY(8px); border: 2px solid #2C2A27; background: #FAF7F2; padding: 1.2rem 1.4rem; font-family: 'EB Garamond', Georgia, serif; font-size: 0.95rem; line-height: 1.75; min-height: 160px; box-sizing: border-box; cursor: pointer;"
+    role="dialog"
+    aria-label="Dialogue with Aqib"
+  >
+    <div id="text-area" style="min-height: 60px;">
+      <span id="dialogue-text"></span><span id="type-cursor" style="color: #8B5E14; animation: blink 0.8s step-end infinite;">|</span>
+    </div>
+
+    <div id="advance-prompt" style="display: none; margin-top: 0.75rem; text-align: right; font-size: 0.72rem; letter-spacing: 0.06em; color: #6B6760; animation: blink 1s step-end infinite;">
+      click or press any key &#9662;
+    </div>
+
+    <div id="menu" style="display: none; border-top: 1px solid rgba(44,42,39,0.15); margin-top: 0.8rem; padding-top: 0.6rem;">
+      <div class="menu-option" data-index="0" data-href="/about" data-sprite="warm" data-label="Tell me about yourself" style="visibility: hidden;">
+        <span class="opt-cursor">&nbsp;</span><span class="opt-label"></span>
+      </div>
+      <div class="menu-option" data-index="1" data-href="/work" data-sprite="confident" data-label="Show me your work" style="visibility: hidden;">
+        <span class="opt-cursor">&nbsp;</span><span class="opt-label"></span>
+      </div>
+      <div class="menu-option" data-index="2" data-href="/writing" data-sprite="thoughtful" data-label="What have you been writing?" style="visibility: hidden;">
+        <span class="opt-cursor">&nbsp;</span><span class="opt-label"></span>
+      </div>
+      <div class="menu-option" data-index="3" data-href="" data-sprite="casual" data-label="Surprise me!" style="visibility: hidden;">
+        <span class="opt-cursor">&nbsp;</span><span class="opt-label"></span>
+      </div>
+    </div>
+
+    <div id="looking-response" style="display: none; padding-top: 0.6rem; font-size: 0.9rem;">
+      <p style="font-style: italic; color: #6B6760; margin-bottom: 0.5rem;">alright. here's everything:</p>
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <div class="look-option" data-href="/about"   data-sprite="warm">      <span class="look-cursor">&#9656;</span>about</div>
+        <div class="look-option" data-href="/work"    data-sprite="confident"> <span class="look-cursor">&nbsp;</span>work</div>
+        <div class="look-option" data-href="/writing" data-sprite="thoughtful"><span class="look-cursor">&nbsp;</span>writing</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+  @keyframes sprite-rise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes sprite-wave {
+    0%   { transform: rotate(0deg); }
+    20%  { transform: rotate(-9deg); }
+    45%  { transform: rotate(9deg); }
+    65%  { transform: rotate(-6deg); }
+    82%  { transform: rotate(4deg); }
+    100% { transform: rotate(0deg); }
+  }
+  @keyframes box-rise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes sprite-spin {
+    0%   { transform: rotate(0deg) scale(1); }
+    30%  { transform: rotate(180deg) scale(1.15); }
+    60%  { transform: rotate(340deg) scale(1.05); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+  .menu-option {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 3px 0;
+    color: #6B6760;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.12s;
+    font-size: 0.95rem;
+  }
+  .menu-option.active {
+    color: #2C2A27;
+    font-weight: 500;
+  }
+  .opt-cursor, .look-cursor {
+    color: #8B5E14;
+    font-size: 0.78em;
+    width: 0.9em;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .look-option {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 3px 0;
+    color: #6B6760;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.12s;
+    font-size: 0.95rem;
+  }
+  .look-option.active {
+    color: #2C2A27;
+    font-weight: 500;
+  }
+</style>
+
+<script>
+  const isReturning = sessionStorage.getItem('returning-home') === 'true';
+  sessionStorage.removeItem('returning-home');
+
+  const FIRST_LINES = [
+    "Greetings, stranger!",
+    "I'm Aqib. This is my corner of the internet -- a small, personal space I've built from scratch.",
+    "What would you like to explore first?",
+  ];
+  const RETURN_LINES = [
+    "Back again? What are you looking for this time?",
+  ];
+  const LINES = isReturning ? RETURN_LINES : FIRST_LINES;
+  const SKIP_ENTRANCE = isReturning;
+
+  const SPRITES: Record<string, string> = {
+    neutral:    '/sprites/neutral.svg',
+    warm:       '/sprites/warm.svg',
+    confident:  '/sprites/confident.svg',
+    thoughtful: '/sprites/thoughtful.svg',
+    casual:     '/sprites/casual.svg',
+  };
+
+  const TYPE_SPEED    = 28;  // ms per dialogue character
+  const OPT_TYPE_SPEED = 16; // ms per option character
+  const OPT_GAP       = 60;  // ms between finishing one option and starting next
+  const MENU_PAUSE    = 400; // ms pause after last line before options appear
+  const FADE_MS       = 200; // crossfade between lines
+
+  const spriteWrap   = document.getElementById('sprite-wrap')!;
+  const spriteImg    = document.getElementById('sprite') as HTMLImageElement;
+  const dialogueBox  = document.getElementById('dialogue-box')!;
+  const dialogueText = document.getElementById('dialogue-text')!;
+  const typeCursor   = document.getElementById('type-cursor')!;
+  const advPrompt    = document.getElementById('advance-prompt')!;
+  const menu         = document.getElementById('menu')!;
+  const lookingResp  = document.getElementById('looking-response')!;
+  const options      = Array.from(document.querySelectorAll('.menu-option')) as HTMLElement[];
+
+  let lineIndex  = 0;
+  let optIndex   = 0;
+  let isTyping   = false;
+  let waitReady  = false;
+  let menuActive = false;
+  let typeTimer: ReturnType<typeof setTimeout> | null = null;
+  let audioCtx: AudioContext | null = null;
+
+  function blip() {
+    try {
+      if (!audioCtx) audioCtx = new AudioContext();
+      const osc  = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(660, audioCtx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.09);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.09);
+    } catch { /* silent */ }
+  }
+
+  function setOption(i: number) {
+    options.forEach((opt, idx) => {
+      const cur = opt.querySelector('.opt-cursor') as HTMLElement;
+      if (idx === i) {
+        opt.classList.add('active');
+        cur.innerHTML = '&#9656;';
+        spriteImg.src = SPRITES[opt.dataset.sprite || 'neutral'];
+      } else {
+        opt.classList.remove('active');
+        cur.innerHTML = '&nbsp;';
+      }
+    });
+    optIndex = i;
+  }
+
+  const SURPRISES = [
+    "drummers are the coolest people in a band. above guitarists, above everyone. i will die on this hill.",
+    "i have thousands of hours in RPGs. this site is basically my character sheet.",
+    "my favourite book is by a korean therapist and it's about wanting to eat tteokboki. make of that what you will.",
+    "i went through all of one piece. every arc. i regret nothing.",
+    "i once researched indian labour law, wrote a leave policy, and got it implemented company-wide. still not sure how.",
+    "i commute 3 hours a day. that's roughly 750 hours a year spent on the delhi metro thinking.",
+  ];
+
+  function wireLookOpts() {
+    const lookOpts = Array.from(document.querySelectorAll('.look-option')) as HTMLElement[];
+    let lookIndex = 0;
+    function setLookActive(j: number) {
+      lookOpts.forEach((lo, idx) => {
+        const cur = lo.querySelector('.look-cursor') as HTMLElement;
+        if (idx === j) {
+          lo.classList.add('active');
+          cur.innerHTML = '&#9656;';
+          spriteImg.src = SPRITES[lo.dataset.sprite || 'neutral'];
+        } else {
+          lo.classList.remove('active');
+          cur.innerHTML = '&nbsp;';
+        }
+      });
+      lookIndex = j;
+    }
+    setLookActive(0);
+    lookOpts.forEach((lo, j) => {
+      lo.addEventListener('mouseenter', () => { if (j !== lookIndex) { blip(); setLookActive(j); } });
+      lo.addEventListener('click', () => { const h = lo.dataset.href; if (h) window.location.href = h; });
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault(); blip(); setLookActive((lookIndex + 1) % lookOpts.length);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault(); blip(); setLookActive((lookIndex - 1 + lookOpts.length) % lookOpts.length);
+      } else if (e.key === 'Enter') {
+        e.preventDefault(); const h = lookOpts[lookIndex].dataset.href; if (h) window.location.href = h;
+      }
+    });
+  }
+
+  function doSurprise() {
+    menu.style.display = 'none';
+    // Sprite spins
+    spriteWrap.style.animation = 'sprite-spin 0.6s cubic-bezier(0.22,1,0.36,1) forwards';
+    setTimeout(() => { spriteWrap.style.animation = 'none'; }, 650);
+    // Pick a random fact and type it in
+    const fact = SURPRISES[Math.floor(Math.random() * SURPRISES.length)];
+    dialogueText.style.transition = 'opacity 150ms ease';
+    dialogueText.style.opacity = '0';
+    typeCursor.style.display = 'inline';
+    setTimeout(() => {
+      dialogueText.style.transition = '';
+      dialogueText.style.opacity = '1';
+      dialogueText.textContent = '';
+      let i = 0;
+      function tick() {
+        if (i < fact.length) {
+          dialogueText.textContent += fact[i++];
+          setTimeout(tick, TYPE_SPEED);
+        } else {
+          typeCursor.style.display = 'none';
+          lookingResp.style.display = 'block';
+          lookingResp.style.animation = 'fade-in 0.3s ease forwards';
+          wireLookOpts();
+        }
+      }
+      tick();
+    }, 160);
+  }
+
+  function selectOption(i: number) {
+    const href = options[i].dataset.href;
+    if (!href) { doSurprise(); return; }
+    window.location.href = href;
+  }
+
+  function showMenu() {
+    menuActive = true;
+    typeCursor.style.display = 'none';
+    advPrompt.style.display = 'none';
+
+    // Pause, then type each option in sequence
+    setTimeout(() => {
+      menu.style.display = 'block';
+
+      function typeOption(index: number, onAllDone: () => void) {
+        if (index >= options.length) { onAllDone(); return; }
+        const opt = options[index];
+        const label = opt.querySelector('.opt-label') as HTMLElement;
+        const fullText = opt.dataset.label || '';
+        opt.style.visibility = 'visible';
+        label.textContent = '';
+        let i = 0;
+        function tick() {
+          if (i < fullText.length) {
+            label.textContent += fullText[i++];
+            setTimeout(tick, OPT_TYPE_SPEED);
+          } else {
+            setTimeout(() => typeOption(index + 1, onAllDone), OPT_GAP);
+          }
+        }
+        tick();
+      }
+
+      typeOption(0, () => {
+        setOption(0);
+        options.forEach((opt, i) => {
+          opt.addEventListener('mouseenter', () => {
+            if (i !== optIndex) { blip(); setOption(i); }
+          });
+          opt.addEventListener('click', () => selectOption(i));
+        });
+        document.addEventListener('keydown', menuKeydown);
+      });
+    }, MENU_PAUSE);
+  }
+
+  function menuKeydown(e: KeyboardEvent) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault(); blip(); setOption((optIndex + 1) % options.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault(); blip(); setOption((optIndex - 1 + options.length) % options.length);
+    } else if (e.key === 'Enter') {
+      e.preventDefault(); selectOption(optIndex);
+    }
+  }
+
+  function typeLine(text: string, onDone: () => void) {
+    isTyping = true;
+    waitReady = false;
+    dialogueText.textContent = '';
+    typeCursor.style.display = 'inline';
+    advPrompt.style.display = 'none';
+    let i = 0;
+    function tick() {
+      if (i < text.length) {
+        dialogueText.textContent += text[i++];
+        typeTimer = setTimeout(tick, TYPE_SPEED);
+      } else {
+        isTyping = false;
+        onDone();
+      }
+    }
+    tick();
+  }
+
+  function skipToEnd() {
+    if (typeTimer) { clearTimeout(typeTimer); typeTimer = null; }
+    isTyping = false;
+    dialogueText.textContent = LINES[lineIndex];
+    afterLineTyped();
+  }
+
+  function afterLineTyped() {
+    if (lineIndex === LINES.length - 1) {
+      showMenu();
+    } else {
+      waitReady = true;
+      advPrompt.style.display = 'block';
+    }
+  }
+
+  function advanceLine() {
+    if (isTyping) { skipToEnd(); return; }
+    if (!waitReady) return;
+    waitReady = false;
+    advPrompt.style.display = 'none';
+    lineIndex++;
+    dialogueText.style.transition = `opacity ${FADE_MS}ms ease`;
+    typeCursor.style.transition   = `opacity ${FADE_MS}ms ease`;
+    dialogueText.style.opacity = '0';
+    typeCursor.style.opacity   = '0';
+    setTimeout(() => {
+      dialogueText.style.transition = '';
+      typeCursor.style.transition   = '';
+      dialogueText.style.opacity = '1';
+      typeCursor.style.opacity   = '1';
+      typeLine(LINES[lineIndex], afterLineTyped);
+    }, FADE_MS);
+  }
+
+  function handleInput() {
+    if (menuActive) return;
+    advanceLine();
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'Tab') return;
+    handleInput();
+  });
+  dialogueBox.addEventListener('click', handleInput);
+
+  // ---- Startup ----
+  if (SKIP_ENTRANCE) {
+    spriteWrap.style.opacity = '1';
+    spriteWrap.style.transform = 'translateY(0)';
+    spriteWrap.style.transition = 'opacity 0.3s ease';
+    setTimeout(() => {
+      dialogueBox.style.animation = 'box-rise 300ms ease forwards';
+      setTimeout(() => typeLine(LINES[0], afterLineTyped), 120);
+    }, 200);
+  } else {
+    const RISE_DUR = 480;
+    const WAVE_DUR = 900;
+    const BOX_GAP  = 120;
+
+    setTimeout(() => {
+      spriteWrap.style.animation = `sprite-rise ${RISE_DUR}ms cubic-bezier(0.22,1,0.36,1) forwards`;
+    }, 300);
+
+    setTimeout(() => {
+      spriteWrap.style.opacity   = '1';
+      spriteWrap.style.transform = 'translateY(0)';
+      spriteWrap.style.animation = `sprite-wave ${WAVE_DUR}ms ease-in-out forwards`;
+    }, 300 + RISE_DUR + 80);
+
+    setTimeout(() => {
+      spriteWrap.style.animation = 'none';
+      dialogueBox.style.animation = 'box-rise 320ms ease forwards';
+      setTimeout(() => typeLine(LINES[0], afterLineTyped), 160);
+    }, 300 + RISE_DUR + 80 + WAVE_DUR + BOX_GAP);
+  }
+</script>

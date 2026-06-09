@@ -1,0 +1,48 @@
+---
+import '../styles/global.css';
+import TalkButton from '../components/TalkButton.astro';
+import ClientRouter from 'astro/components/ClientRouter.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  showTalkButton?: boolean;
+}
+
+const {
+  title = 'aqib raza',
+  description = 'aqib.fyi — a quiet corner of the internet.',
+  showTalkButton = true,
+} = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+    <ClientRouter />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    {showTalkButton && <TalkButton />}
+    <main class="flex-1">
+      <slot />
+    </main>
+    <footer class="py-10 px-8 text-sm text-[#6B6760] text-center space-y-1">
+      <div>
+        <a href="mailto:aqib7raza@gmail.com" class="hover:text-[#2C2A27] transition-colors">aqib7raza@gmail.com</a>
+      </div>
+      <div class="flex justify-center gap-6">
+        <a href="https://www.linkedin.com/in/aqib-raza/" target="_blank" rel="noopener" class="hover:text-[#2C2A27] transition-colors">linkedin</a>
+        <a href="https://x.com/aqwe_eb" target="_blank" rel="noopener" class="hover:text-[#2C2A27] transition-colors">twitter / x</a>
+        <a href="https://substack.com/@aqweeb" target="_blank" rel="noopener" class="hover:text-[#2C2A27] transition-colors">substack</a>
+      </div>
+    </footer>
+  </body>
+</html>

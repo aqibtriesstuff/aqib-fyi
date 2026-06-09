@@ -1,0 +1,169 @@
+---
+---
+
+<!-- [ talk ] button fixed top-left on inner pages -->
+<button
+  id="talk-btn"
+  aria-label="Open navigation"
+  class="fixed top-5 left-5 z-50 text-sm text-[#6B6760] hover:text-[#2C2A27] transition-colors tracking-wide"
+  style="font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem;"
+>
+  [ talk ]
+</button>
+
+<!-- Overlay -->
+<div
+  id="talk-overlay"
+  class="fixed inset-0 z-40 hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Navigation"
+>
+  <!-- Backdrop -->
+  <div id="talk-backdrop" class="absolute inset-0 bg-[#2C2A27] opacity-20"></div>
+
+  <!-- Menu box -->
+  <div
+    id="talk-box"
+    class="absolute top-5 left-5 border-2 border-[#2C2A27] bg-[#FAF7F2] p-5 min-w-[200px]"
+    style="font-family: 'EB Garamond', Georgia, serif; font-size: 0.95rem; line-height: 1.7;"
+  >
+    <div class="text-[#2C2A27] mb-3">Where to?</div>
+    <div class="border-t border-[#2C2A27] border-opacity-20 pt-3 space-y-1" role="menu">
+      <div class="talk-option" data-href="/about" role="menuitem">
+        <span class="talk-cursor mr-2">&#9656;</span>about
+      </div>
+      <div class="talk-option" data-href="/work" role="menuitem">
+        <span class="talk-cursor mr-2">&nbsp;</span>work
+      </div>
+      <div class="talk-option" data-href="/writing" role="menuitem">
+        <span class="talk-cursor mr-2">&nbsp;</span>writing
+      </div>
+      <div class="talk-option" data-href="/" role="menuitem">
+        <span class="talk-cursor mr-2">&nbsp;</span>&#8592; home
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .talk-option {
+    cursor: pointer;
+    padding: 2px 0;
+    color: #6B6760;
+    transition: color 0.1s;
+    display: flex;
+    align-items: baseline;
+    user-select: none;
+  }
+  .talk-option.active {
+    color: #2C2A27;
+    font-weight: 500;
+  }
+  .talk-cursor {
+    color: #8B5E14;
+    font-size: 0.8em;
+    display: inline-block;
+    width: 1em;
+  }
+</style>
+
+<script>
+  const btn = document.getElementById('talk-btn')!;
+  const overlay = document.getElementById('talk-overlay')!;
+  const backdrop = document.getElementById('talk-backdrop')!;
+  const options = Array.from(document.querySelectorAll('.talk-option')) as HTMLElement[];
+  let currentIndex = 0;
+  let isOpen = false;
+  let audioCtx: AudioContext | null = null;
+
+  function getAudioContext(): AudioContext {
+    if (!audioCtx) audioCtx = new AudioContext();
+    return audioCtx;
+  }
+
+  function playBlip() {
+    try {
+      const ctx = getAudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(440, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.08);
+    } catch {
+      // silent fail
+    }
+  }
+
+  function setActive(index: number) {
+    options.forEach((opt, i) => {
+      const cursor = opt.querySelector('.talk-cursor') as HTMLElement;
+      if (i === index) {
+        opt.classList.add('active');
+        cursor.innerHTML = '&#9656;';
+      } else {
+        opt.classList.remove('active');
+        cursor.innerHTML = '&nbsp;';
+      }
+    });
+    currentIndex = index;
+  }
+
+  function open() {
+    overlay.classList.remove('hidden');
+    isOpen = true;
+    setActive(0);
+    document.addEventListener('keydown', handleKeydown);
+    options.forEach((opt, i) => {
+      opt.addEventListener('mouseenter', () => {
+        if (i !== currentIndex) {
+          playBlip();
+          setActive(i);
+        }
+      });
+      opt.addEventListener('click', () => {
+        const href = opt.dataset.href;
+        if (!href) return;
+        if (href === '/') sessionStorage.setItem('returning-home', 'true');
+        window.location.href = href;
+      });
+    });
+  }
+
+  function close() {
+    overlay.classList.add('hidden');
+    isOpen = false;
+    document.removeEventListener('keydown', handleKeydown);
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      close();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = (currentIndex + 1) % options.length;
+      playBlip();
+      setActive(next);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prev = (currentIndex - 1 + options.length) % options.length;
+      playBlip();
+      setActive(prev);
+    } else if (e.key === 'Enter') {
+      const href = options[currentIndex].dataset.href;
+      if (href) window.location.href = href;
+    }
+  }
+
+  btn.addEventListener('click', () => {
+    if (isOpen) close(); else open();
+  });
+
+  backdrop.addEventListener('click', close);
+</script>
