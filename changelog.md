@@ -49,6 +49,18 @@ Format: date, what changed, which files were affected.
 
 ---
 
+## 2026-06-09 -- Stack switch: Astro to Next.js (decision logged)
+
+**What changed:**
+- Documented the decision to switch from Astro to Next.js in build-log.md
+- Site concept evolved: RPG character is now a persistent presence across the whole site, not just a homepage intro. AI-driven response is the goal; scripted dialogue is the starting point.
+- All existing Astro Phase 2 work will be rebuilt in Next.js (Phase 1b migration, then Phase 2 redo)
+
+**Files changed:**
+- `build-log.md` -- decision entry added
+
+---
+
 ## 2026-06-09 -- Phase 2 refinements
 
 **What changed:**

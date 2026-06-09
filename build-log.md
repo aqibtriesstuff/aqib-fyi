@@ -74,3 +74,15 @@ Files created or changed:
 - `package.json` -- renamed from "puffy-planet" to "aqib-fyi"
 
 Build result: `npm run build` passed clean, 4 pages built, zero errors.
+
+---
+
+## 2026-06-09 -- Stack switch decision: Astro to Next.js
+
+- Decided to migrate from Astro to Next.js
+- Reason: the RPG dialogue character concept expanded. Instead of a one-time homepage intro, the character should be a persistent presence across the whole site -- always available, eventually AI-driven and capable of responding to the visitor dynamically
+- That requires: API routes (to call an AI service without exposing keys), session state (character remembers context across pages), unified React component tree (share state between character and page content)
+- Astro supports interactive components via islands but becomes awkward at this level of stateful cross-page interactivity
+- Plan: reinitialize site repo with Next.js + Tailwind (Phase 1b). Rebuild Phase 2 in Next.js, starting with scripted dialogue. AI layer added as a later phase once the structure is solid
+- All Phase 2 Astro work (components, pages, sprites) will be redone -- not lost, just rebuilt in the new framework
+- project-zero-brief.md in vault updated to reflect the new stack and expanded character concept
