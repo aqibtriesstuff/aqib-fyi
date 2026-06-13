@@ -154,3 +154,18 @@ Format: date, what changed, which files were affected.
 - `build-log.md` -- prompt-level history of the nav iterations
 
 **Note:** nav images use Next's `unoptimized` prop to sidestep image-optimizer caching issues seen during iteration; fine for a few small images, revisit if needed.
+
+---
+
+## 2026-06-14 -- Color system aligned to the recolored section images
+
+**What changed:**
+- Updated the section-identity color tokens in `tokens.css` to match the recolored nav images, so the design system reflects what's actually on screen. These tokens are not used by any component yet (the nav uses only the warm/neutral tokens), so there is no visual change now; this prepares the section page accents for later phases.
+  - About: replaced the old near-black `--about-deep` with `--about-green` (#7a9a5a) and `--about-gold` (#e8d890); kept `--thread-red` as the accent.
+  - Home: added `--dusk-violet` (#6a4a8a) and `--dusk-lavender` (#b89ac8) for the violet-dusk panel.
+  - Projects: kept the warm tokens, noting it is now a brighter cream morning.
+  - Thoughts (teal) and Inspirations (navy) unchanged.
+- The planning-vault docs were brought in sync to match (concept.md aesthetic + color system + navigation, design-tokens.md; old epic-world `DESIGN.md` marked superseded). Those live in the planning vault, not this repo.
+
+**Files changed:**
+- `src/app/tokens.css` -- section-identity color tokens updated

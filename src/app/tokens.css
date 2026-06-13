@@ -27,24 +27,31 @@
   --green-mid:      #4a8a30;
   --green-light:    #7dc855;
 
-  /* ----- Warm interiors (w7 -- cartographer's study) ---------- */
-  --amber:          #c87030;
-  --gold-light:     #e0b84a;
-  --parchment:      #f0e4c8;
-  --warm-dark:      #1a120a;
+  /* ----- Warm interiors / Projects (cream morning) ------------
+     The Projects panel is now a bright, airy morning study; these warm
+     tones also serve general warm UI (the amber accent, parchment, etc.) */
+  --amber:          #c87030;  /* dominant warm accent, used throughout */
+  --gold-light:     #e0b84a;  /* warm sunlight on surfaces */
+  --parchment:      #f0e4c8;  /* cream / ivory page and panel surface */
+  --warm-dark:      #1a120a;  /* deep warm brown, primary text + dark mats */
 
-  /* ----- About section (a7) ----------------------------------- */
-  --about-deep:     #150c05;
-  --thread-red:     #c04040;
+  /* ----- Home section nav (violet dusk) ----------------------- */
+  --dusk-violet:    #6a4a8a;  /* the lavender-violet twilight sky in the Home panel */
+  --dusk-lavender:  #b89ac8;  /* pale lavender highlights */
 
-  /* ----- Thoughts section (t1) -------------------------------- */
-  --rain-blue:      #2a4a5a;
-  --ink-dark:       #1a2a30;
+  /* ----- About section (green-gold, red thread) --------------- */
+  --about-green:    #7a9a5a;  /* the luminous sage-green light in the About panel */
+  --about-gold:     #e8d890;  /* the warm golden light from above */
+  --thread-red:     #c04040;  /* the red thread of fate -- the symbolic accent */
 
-  /* ----- Inspirations section (i14) --------------------------- */
-  --night-navy:     #1a2a42;
-  --star-gold:      #f0d060;
-  --stone-warm:     #3a2a1a;
+  /* ----- Thoughts section (teal rain) ------------------------- */
+  --rain-blue:      #2a4a5a;  /* the cool blue-green of the rain and water */
+  --ink-dark:       #1a2a30;  /* deep ink tone from the linework */
+
+  /* ----- Inspirations section (navy night) ------------------- */
+  --night-navy:     #1a2a42;  /* the deep navy night sky */
+  --star-gold:      #f0d060;  /* stars and the gold-lit clouds */
+  --stone-warm:     #3a2a1a;  /* the warm-lit gothic stone */
 
   /* ----- Neutral / text / surface (used everywhere) ----------- */
   --text:           #1a120a;
