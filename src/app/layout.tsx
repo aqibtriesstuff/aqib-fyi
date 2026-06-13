@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Cormorant_Garamond, DM_Sans, Space_Mono } from 'next/font/google';
+import NavStrip from '@/components/NavStrip/NavStrip';
 import './tokens.css';
 import './globals.css';
 
@@ -32,7 +33,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const fontVars = `${cormorant.variable} ${dmSans.variable} ${spaceMono.variable}`;
   return (
     <html lang="en" className={fontVars}>
-      <body>{children}</body>
+      <body>
+        <NavStrip />
+        {children}
+      </body>
     </html>
   );
 }

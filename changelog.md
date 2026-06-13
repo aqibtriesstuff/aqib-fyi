@@ -129,3 +129,28 @@ Format: date, what changed, which files were affected.
 - `postcss.config.mjs`
 - `src/components/DialogueNav.tsx`, `PageFooter.tsx`, `TalkButton.tsx`
 - `src/app/library/`, `src/app/writing/`, `src/app/work/`
+
+---
+
+## 2026-06-13 -- Phase 2: Navigation system (desktop strip + phone Explore menu)
+
+**What changed:**
+- Built the full inner-page navigation as a single `NavStrip` component. It appears on every inner page and hides on the homepage (which gets its own links later).
+- Desktop and tablet: a horizontal strip of five panels (Home, About, Projects, Thoughts, Inspirations), each showing its section illustration with the label centered on top, a warm dark wash that lightens on hover, and an amber accent under the active section. Panels are locked to a 2:1 shape so the whole image always shows, framed identically on every screen size.
+- Phones (<=600px): the strip is replaced by an "Explore" bar that toggles a dropdown of the five sections stacked as slim 6:1 bars, each with its own phone-sized image and centered label. The Explore bar stays visible and closes the menu when tapped again; menu also closes on selection, route change, or Escape. The Explore bar uses its own background image.
+- Recolored all five section images so each is visually distinct (violet dusk Home, green-gold About, cream morning Projects, teal rain Thoughts, navy night Inspirations).
+- Active section detection is by the first URL segment, so sub-pages keep their parent highlighted.
+- Accessibility: nav landmark labels, `aria-current` on the active link, `aria-expanded`/`aria-controls` on the Explore button, keyboard focus rings, Escape to close.
+
+**Files added:**
+- `src/components/NavStrip/NavStrip.tsx` and `NavStrip.module.css`
+- `public/images/nav/mobile/6to1/` -- six 6:1 phone images (home, about, projects, thoughts, inspirations, explore)
+- `public/images/nav/mobile/2to1/` -- earlier 2:1 phone attempts (kept, unused)
+
+**Files changed:**
+- `src/app/layout.tsx` -- renders `NavStrip` above page content
+- `src/app/tokens.css` -- lightened nav overlay tokens; added `--text-shadow-on-image`
+- `public/images/nav/home.png`, `about.png` (renamed from a8.png), `projects.png`, `thoughts.jpg`, `inspirations.png` -- recolored 2:1 desktop images
+- `build-log.md` -- prompt-level history of the nav iterations
+
+**Note:** nav images use Next's `unoptimized` prop to sidestep image-optimizer caching issues seen during iteration; fine for a few small images, revisit if needed.

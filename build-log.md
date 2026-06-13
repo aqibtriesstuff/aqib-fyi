@@ -135,3 +135,71 @@ First actual build session for the illustrated-world direction. No visual UI yet
 **Flagged, not yet fixed:** the site's `CLAUDE.md` is stale -- it still says Astro, "Always use Tailwind," and "No animations," all of which now contradict the build. `BUILDLOG.md` (uppercase) is the abandoned cat-world log. Both should be reconciled.
 
 **Next:** Phase 2 -- the five-panel inner-page nav strip.
+
+---
+
+## 2026-06-13 -- Phase 2: Five-panel nav strip
+
+Built the inner-page navigation strip. First real visual component.
+
+**Component:** `src/components/NavStrip/NavStrip.tsx` + `NavStrip.module.css`.
+- Client component (uses `usePathname` to know the active section).
+- Five panels: Home, About, Projects, Thoughts, Inspirations, each with its nav image (`public/images/nav/`) cropped to fill via `next/image`, a warm dark overlay (`--overlay-panel`), and the label in parchment DM Sans over it.
+- Active section: lighter overlay (`--overlay-panel-active`) plus a 3px amber accent line at the bottom. Active detection matches the first path segment, so sub-pages like `/projects/kraftedx/scout` keep Projects highlighted.
+- Hover/focus: overlay lightens to `--overlay-panel-hover`. Keyboard focus ring in gold. `aria-current="page"` on the active panel, `aria-label` on the nav landmark.
+- Sticky at top, `z-index: 10`, `--shadow-md` to read as a distinct layer above content.
+- Mobile (<=600px): strip shrinks to 60px, labels shrink so all five still fit side by side (no scrolling, all sections always visible).
+
+**Placement:** rendered once in the root layout, above `{children}`. It returns `null` on the homepage (`/`), so the homepage keeps its own floating-links approach and every other route gets the strip automatically.
+
+**New token:** `--text-shadow-on-image` added to tokens.css and design-tokens.md, for light labels sitting over imagery.
+
+**Verified:** `next build` clean. Dev server confirms `/about` renders the nav with one active panel; `/` has no nav landmark.
+
+**Next:** Phase 3 -- the homepage (landscape layer, floating nav links, intro sequence with the real avatar).
+
+---
+
+## 2026-06-13 -- Phase 2 refinement: nav strip tuning + locked-ratio rework
+
+Iterated on the nav strip from visual feedback.
+
+- **Brighter panels:** lightened the overlay tokens (inactive 0.55 -> 0.35, hover 0.40 -> 0.25, active 0.30 -> 0.15) and strengthened `--text-shadow-on-image` to a tight-edge + halo so labels stay legible over brighter images.
+- **Labels:** switched from DM Sans to Cormorant Garamond (`--font-display`), semibold, sized up to `--text-display-sm` on desktop with responsive steps down for tablet/phone.
+- **Cropping fix (the big one):** the cover-crop approach showed a different slice of each image at different screen widths (panel width is responsive, height was fixed), and the source images are all different shapes (one is portrait). Reworked so each panel is locked to a fixed 2:1 aspect ratio and the image is shown whole (`object-fit: contain`) on a dark mat, never cropped. Result: identical framing on every device; only the size scales. Removed the per-image `object-position` (no longer needed). Strip height now follows the 2:1 panels automatically (no fixed height).
+- **Decision:** nav images to be regenerated to a uniform 2:1 (target 1600x800) so they fill each panel edge to edge. Until then, current images show whole but letterboxed (Inspirations, being portrait, has the most dark space around it). About (a7) is already ~2:1.
+
+**Mobile nav (final approach):** on phones (<=600px) the horizontal strip is hidden and replaced by an "Explore" bar that stays visible and toggles a dropdown open/closed when tapped (chevron flips; no separate close control). The dropdown is the five sections stacked vertically as slim **6:1 bars, the same shape as the Explore bar**, each with its own phone-specific image and the label centered on top (matching the desktop panel look). Active section marked with an amber left edge. Closes on tap of Explore, selection, route change, or Escape; animated.
+
+Phone images are a **separate set** from desktop: 6:1 (1200x200), in `public/images/nav/mobile/` (home.png, about.png, projects.png, thoughts.jpg, inspirations.png) plus `explore.png` for the Explore bar. Desktop strip uses the 2:1 set in `public/images/nav/` (Aqib regenerated and replaced these). Component references both sets via `img` (2:1) and `imgMobile` (6:1) per panel.
+
+(Iteration history: cropped-cover -> locked 2:1 contain -> considered swipe filmstrip and thumbnail list -> landed on the Explore toggle with slim 6:1 bars per Aqib's direction.)
+
+**Pending:** Aqib to add the six 6:1 phone images; then wire `explore.png` into the Explore bar. Once the nav is visually locked, sync into concept.md (still describes a "cropped background" five-panel strip on all devices) and design-tokens.md (nav shapes/labels, desktop 2:1 + mobile 6:1, Explore menu). Holding the doc sync until then.
+
+**Next:** Phase 3 -- the homepage.
+
+---
+
+## 2026-06-13 -- Nav system complete (recolored final images, locked)
+
+The whole nav system is done on desktop and phone, and the section images were recolored so each panel is visually distinct.
+
+**Final recolored images (the big visual change):** each section now has its own signature color/atmosphere so the strip reads as five distinct places instead of blending. In nav order:
+- Home: violet/lavender dusk with a warm amber sunset glow
+- About: luminous green and gold, the red thread still the symbolic accent
+- Projects: bright cream/ivory morning, warm, blue window sky (lightened from the old golden-hour look)
+- Thoughts: teal blue-green rain, ink linework (unchanged)
+- Inspirations: deep navy night, gold-lit clouds and stars (unchanged)
+
+**File housekeeping:**
+- About's chosen image came in as `a8.png`; renamed to `about.png` to match the other four and fix a broken reference (the code points to `about.png`).
+- Desktop images: `public/images/nav/` at 2:1 (1774x887).
+- Phone images: `public/images/nav/mobile/6to1/` at 6:1 (1200x200) -- home, about, projects, thoughts, inspirations, plus `explore.png`. The earlier 2:1 phone attempts are parked in `public/images/nav/mobile/2to1/` (unused).
+- Explore bar uses `explore.png` as a cover background (set via inline `backgroundImage`).
+
+**Rendering note:** nav `Image`s use the `unoptimized` prop. Next's image optimizer was caching aggressively during iteration and erroring on not-yet-added files; `unoptimized` serves the files directly, which is fine for a handful of small nav images. Can revisit later if we want optimization back.
+
+**Final shapes:** desktop panels and phone bars/Explore are all driven by `aspect-ratio` (2:1 desktop, 6:1 phone) so they scale cleanly and show the whole image with no cropping. Verified `next build` clean.
+
+This is the Phase 2 commit point.
