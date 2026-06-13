@@ -94,3 +94,38 @@ Format: date, what changed, which files were affected.
 - Background color fix: moved body styles out of @layer base so cream + ink colors reliably apply
 - Removed [ aqib ] name chip from dialogue box and talk overlay (redundant after intro)
 - All four pages confirmed working end-to-end
+
+---
+
+## 2026-06-13 -- Phase 1: Foundation for the illustrated-world rebuild
+
+**What changed:**
+- Started the build for the illustrated-world direction (the warm, explorable, RPG-style world spec'd in the planning vault's concept.md). New branch `illustrated-world` from `main`.
+- Removed Tailwind entirely. The locked plan calls for plain CSS Modules only. Uninstalled `tailwindcss` and `@tailwindcss/postcss`, deleted `postcss.config.mjs`. Next.js now uses its built-in CSS pipeline.
+- Added `src/app/tokens.css`: the single source of truth for all design tokens (colors, type scale, spacing, radius, shadows, overlays, motion), translated directly from design-tokens.md.
+- Switched fonts to the three the design calls for: Cormorant Garamond, DM Sans, Space Mono (was EB Garamond). Loaded via next/font and wired to token variables.
+- Rewrote globals.css as a minimal reset plus base styles, all using tokens. Removed the old grain and vignette overlays.
+- Cleared out the old quiet-archive / cat-world files and replaced the routes. "work" route renamed to "projects". Added placeholder pages for the four sections so the site runs.
+- Kept the dialogue engine in `src/components/Intro/` for reuse; stubbed its deleted dependency so it compiles (full avatar wiring comes in the homepage phase).
+- Aligned all repo docs so future sessions are not misled: rewrote the stale CLAUDE.md and README.md, marked the old uppercase BUILDLOG.md as superseded, and fixed the .vscode files that still pointed at Astro.
+- Verified: `next build` passes clean, all five routes generated.
+
+**Files added:**
+- `src/app/tokens.css`
+- `src/app/projects/page.tsx`, `src/app/thoughts/page.tsx`, `src/app/inspirations/page.tsx`
+- `src/components/Intro/Intro.tsx`, `Intro.module.css`
+- `public/images/` (all finalized art: landscape, nav panels, avatar, wall-of-love)
+- `BUILDLOG.md` (historical cat-world log, now marked superseded)
+
+**Files changed:**
+- `src/app/layout.tsx` -- three fonts, token + globals imports, cleaned metadata
+- `src/app/globals.css` -- reset + base styles, no Tailwind
+- `src/app/page.tsx`, `src/app/about/page.tsx` -- placeholders
+- `package.json`, `package-lock.json` -- Tailwind removed
+- `CLAUDE.md`, `README.md`, `build-log.md` -- brought current
+- `.vscode/launch.json`, `.vscode/extensions.json` -- Astro leftovers fixed
+
+**Files removed:**
+- `postcss.config.mjs`
+- `src/components/DialogueNav.tsx`, `PageFooter.tsx`, `TalkButton.tsx`
+- `src/app/library/`, `src/app/writing/`, `src/app/work/`

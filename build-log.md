@@ -105,3 +105,33 @@ Build result: `npm run build` passed clean, 4 pages built, zero errors.
   - `src/app/layout.tsx` -- root layout, EB Garamond via next/font, grain + vignette overlays
   - `src/app/globals.css` -- all design tokens, grain/vignette, drop cap, ink-divider
 - Build result: `next build` passed clean, 6 routes, zero errors
+
+---
+
+## 2026-06-13 -- Phase 1: Foundation for the illustrated-world build
+
+First actual build session for the illustrated-world direction. No visual UI yet -- this session laid the groundwork everything else sits on. Full spec in planning vault `03-site-planning/concept.md` and `design-tokens.md`.
+
+**Branch:** created `illustrated-world` from `main`. The old `cat-world` and quiet-archive working files were cleared out. Kept the dialogue engine in `src/components/Intro/` (its typewriter and choice-state logic is reusable) and all finalized images in `public/images/`.
+
+**Tailwind removed.** This is a deliberate break from the old setup, mandated by the locked plan (plain CSS Modules only).
+- Uninstalled `tailwindcss` and `@tailwindcss/postcss`
+- Deleted `postcss.config.mjs` (it only existed to run Tailwind); Next.js falls back to its built-in CSS pipeline
+- `globals.css` rewritten from scratch: minimal reset, base body styles, reduced-motion support. No `@import "tailwindcss"`, no `@theme` block.
+
+**Files created/changed:**
+- `src/app/tokens.css` -- NEW. The single source of truth for all design tokens (colors, type scale, spacing, radius, shadows, overlays, motion). Direct translation of design-tokens.md. ~190 lines.
+- `src/app/layout.tsx` -- three fonts via next/font/google: Cormorant Garamond (display), DM Sans (body), Space Mono (dialogue). Wired to `--font-cormorant`, `--font-dm-sans`, `--font-space-mono`, which tokens.css references. Removed EB Garamond, grain overlay, vignette overlay. Updated metadata.
+- `src/app/globals.css` -- reset + base styles, all using tokens.
+- `src/app/page.tsx` -- placeholder homepage.
+- `src/app/about/page.tsx` -- placeholder (old bio content preserved in git history on main + planning vault about-me.md).
+- `src/app/projects/page.tsx`, `thoughts/page.tsx`, `inspirations/page.tsx` -- NEW placeholder pages. "work" route renamed to "projects".
+- `src/components/Intro/Intro.tsx` -- stubbed the deleted Cat import with a placeholder div so it compiles. Full avatar wiring deferred to Phase 3 (homepage).
+
+**Removed:** `src/components/DialogueNav.tsx`, `PageFooter.tsx`, `TalkButton.tsx`; `src/app/library/`, `writing/`, `work/`.
+
+**Verification:** `next build` passes clean, all 5 routes generated static. Running dev server serves `/` and `/about` at HTTP 200 with the new content. No Tailwind references remain.
+
+**Flagged, not yet fixed:** the site's `CLAUDE.md` is stale -- it still says Astro, "Always use Tailwind," and "No animations," all of which now contradict the build. `BUILDLOG.md` (uppercase) is the abandoned cat-world log. Both should be reconciled.
+
+**Next:** Phase 2 -- the five-panel inner-page nav strip.

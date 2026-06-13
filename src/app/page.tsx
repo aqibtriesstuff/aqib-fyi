@@ -1,18 +1,21 @@
-import DialogueNav from '@/components/DialogueNav';
-
 export default function Home() {
   return (
     <main
       style={{
-        height: '100dvh',
+        minHeight: '100dvh',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '1.5rem',
-        overflow: 'hidden',
+        gap: 'var(--space-3)',
+        padding: 'var(--space-6)',
+        textAlign: 'center',
       }}
     >
-      <DialogueNav />
+      <h1 style={{ fontSize: 'var(--text-display-xl)' }}>aqib.fyi</h1>
+      <p style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+        The world is being built. Foundation in place.
+      </p>
     </main>
   );
 }

@@ -1,4 +1,4 @@
-export default function AboutPage() {
+export default function ThoughtsPage() {
   return (
     <main
       style={{
@@ -12,7 +12,7 @@ export default function AboutPage() {
         textAlign: 'center',
       }}
     >
-      <h1 style={{ fontSize: 'var(--text-display-lg)' }}>About</h1>
+      <h1 style={{ fontSize: 'var(--text-display-lg)' }}>Thoughts</h1>
       <p style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
         Coming soon.
       </p>
