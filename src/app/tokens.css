@@ -131,12 +131,20 @@
     0 0 12px rgba(200, 112, 48, 0.35),
     0 2px 8px rgba(200, 112, 48, 0.20);
 
+  /* Homepage ambient particles -- soft warm glow */
+  --particle-glow: radial-gradient(circle, rgba(240, 224, 160, 0.9), rgba(240, 224, 160, 0) 70%);
+
   /* Text shadow for light labels sitting over images (nav panels, etc.).
      A tight dark edge plus a soft halo so light labels stay legible even
      over bright parts of an image (e.g. the sky in the Home panel). */
   --text-shadow-on-image:
     0 1px 3px rgba(10, 6, 2, 0.9),
     0 0 10px rgba(10, 6, 2, 0.55);
+
+  /* gold glow for a highlighted / selected label */
+  --text-shadow-glow:
+    0 1px 3px rgba(10, 6, 2, 0.9),
+    0 0 18px rgba(224, 184, 74, 0.55);
 
   /* ----- Overlays (nav panels, intro dim) --------------------- */
   --overlay-panel:        rgba(10, 6, 2, 0.35);

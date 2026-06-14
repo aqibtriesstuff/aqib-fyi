@@ -28,8 +28,8 @@ When in doubt, concept.md wins. If something here conflicts with concept.md, con
 - **Icons:** mix approach, no icon library. Social links use standard flat brand SVGs (Twitter/X, Instagram, YouTube, Substack, LinkedIn). All other UI icons use custom simple SVGs with an ink/hand-drawn quality. No Phosphor, no external icon dependency.
 - **Mobile is non-negotiable.** Every layout must work on mobile without compromise.
 - **Animation serves atmosphere, never attention.** Everything that moves, moves slowly. Soft fades, gentle reveals, never pops or snaps. See the animation principles in concept.md. (The old "no animations" rule from the Astro era is dead.)
-- **Homepage landscape:** short looping mp4, autoplay, muted, loop, no controls.
-- **Time of day:** detected client-side via `new Date().getHours()` on mount.
+- **Homepage background:** currently an animated pixel-art GIF (`public/images/landscape/home.gif`). A `USE_GIF` flag in `HomeScene` switches to a fallback of five painterly time-of-day stills (lp11 dawn/day/dusk/twilight/night) with auto local-time detection + a manual selector.
+- **Time of day:** when the static fallback is on, detected client-side via `new Date().getHours()`.
 - **Intro sequence:** runs every home page load. No sessionStorage gating.
 - **Warm illustrated aesthetic.** Never dark, minimal, cold, or corporate.
 

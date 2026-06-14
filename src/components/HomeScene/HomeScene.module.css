@@ -1,0 +1,266 @@
+.scene {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: var(--warm-dark);
+  cursor: url('/images/cursor-dot.svg') 12 12, auto;
+}
+
+/* ----- landscape layers (crossfade between times of day) ----- */
+.layers {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.layer {
+  object-fit: cover;
+  animation: drift 80s var(--ease-in-out) infinite alternate;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+.layerPrev {
+  z-index: 0;
+}
+
+.layerActive {
+  z-index: 1;
+  animation:
+    fadeIn 1.1s var(--ease-in-out) both,
+    drift 80s var(--ease-in-out) infinite alternate;
+}
+
+/* animated gif background (already moving, so no drift) */
+.gifLayer {
+  object-fit: cover;
+  z-index: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes drift {
+  from { transform: scale(1.02); }
+  to   { transform: scale(1.08); }
+}
+
+/* ----- ambient particles ------------------------------------- */
+.particles {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  bottom: -24px;
+  border-radius: 50%;
+  background: var(--particle-glow);
+  opacity: 0;
+  animation-name: floatUp;
+  animation-timing-function: var(--ease-in-out);
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes floatUp {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  12%  { opacity: 0.75; }
+  50%  { transform: translate(14px, -52vh); }
+  88%  { opacity: 0.5; }
+  100% { transform: translate(0, -106vh); opacity: 0; }
+}
+
+/* ----- foreground: menu + corner ----------------------------- */
+.foreground {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-slow) var(--ease-in-out);
+}
+
+.revealed {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* desktop: the four sections, lower-left */
+.menu {
+  position: absolute;
+  left: var(--space-16);
+  bottom: var(--space-10);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.menuItem {
+  font-family: var(--font-display);
+  font-size: var(--text-display-md);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  color: var(--parchment);
+  text-shadow: var(--text-shadow-on-image);
+  transition: color var(--duration-normal) var(--ease-gentle),
+              text-shadow var(--duration-normal) var(--ease-gentle);
+  cursor: url('/images/cursor-ring.svg') 14 14, pointer;
+}
+
+/* arrows that ease in around the selected item (space reserved so no shift) */
+.menuItem::before,
+.menuItem::after {
+  color: var(--gold-light);
+  opacity: 0;
+  display: inline-block;
+  transition: opacity var(--duration-normal) var(--ease-gentle),
+              transform var(--duration-normal) var(--ease-gentle);
+}
+
+.menuItem::before {
+  content: '\00bb\00a0';
+  transform: translateX(-5px);
+}
+
+.menuItem::after {
+  content: '\00a0\00ab';
+  transform: translateX(5px);
+}
+
+.menuItem:focus-visible {
+  outline: none;
+}
+
+/* highlighted item (hover / keyboard / focus): gold + glow + arrows */
+.menuItemSelected {
+  color: var(--gold-light);
+  font-weight: var(--weight-bold);
+  text-shadow: var(--text-shadow-glow);
+}
+
+.menuItemSelected::before,
+.menuItemSelected::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* desktop: socials + 24h clock, bottom-right, aligned with the menu's base */
+/* one font (Cormorant, matching the menu), one size, tightly packed */
+.corner {
+  position: absolute;
+  right: var(--space-16);
+  bottom: var(--space-10);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  text-align: right;
+  font-family: var(--font-display);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-body-lg);
+}
+
+.cornerLink {
+  color: var(--parchment);
+  text-shadow: var(--text-shadow-on-image);
+  transition: color var(--duration-normal) var(--ease-gentle);
+  cursor: url('/images/cursor-ring.svg') 14 14, pointer;
+}
+
+.cornerLink:hover,
+.cornerLink:focus-visible {
+  color: var(--gold-light);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  outline: none;
+}
+
+/* manual time-of-day selector, top-right */
+.timeSelect {
+  position: absolute;
+  top: var(--space-8);
+  right: var(--space-16);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  text-align: right;
+  opacity: 0.55;
+  transition: opacity var(--duration-normal) var(--ease-gentle);
+}
+
+.timeSelect:hover {
+  opacity: 1;
+}
+
+.timeOption {
+  font-family: var(--font-display);
+  font-weight: var(--weight-medium);
+  font-size: var(--text-body-sm);
+  letter-spacing: var(--tracking-wide);
+  color: var(--parchment);
+  text-shadow: var(--text-shadow-on-image);
+  transition: color var(--duration-normal) var(--ease-gentle);
+  cursor: url('/images/cursor-ring.svg') 14 14, pointer;
+}
+
+.timeOption:hover,
+.timeOption:focus-visible {
+  color: var(--gold-light);
+  outline: none;
+}
+
+.timeActive {
+  color: var(--gold-light);
+  font-weight: var(--weight-semibold);
+}
+
+/* ----- phones: just the four sections, centered -------------- */
+@media (max-width: 600px) {
+  .particles {
+    display: none;
+  }
+  .corner {
+    display: none;
+  }
+  .timeSelect {
+    display: none;
+  }
+  /* center the figure (he sits ~46% across) when cropped to a tall screen */
+  .gifLayer {
+    object-position: 45% center;
+  }
+  .menu {
+    left: 0;
+    right: 0;
+    bottom: auto;
+    top: 72%;
+    transform: translateY(-50%);
+    align-items: center;
+    text-align: center;
+    padding: 0 var(--space-6);
+  }
+  .menuItem {
+    font-size: var(--text-display-sm);
+  }
+}

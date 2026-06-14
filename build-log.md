@@ -203,3 +203,30 @@ The whole nav system is done on desktop and phone, and the section images were r
 **Final shapes:** desktop panels and phone bars/Explore are all driven by `aspect-ratio` (2:1 desktop, 6:1 phone) so they scale cleanly and show the whole image with no cropping. Verified `next build` clean.
 
 This is the Phase 2 commit point.
+
+---
+
+## 2026-06-14 -- Phase 3 (part 1): Homepage scene + main menu
+
+Built the homepage as a full-screen scene with a game-style main menu. The avatar intro (the other half of Phase 3) is not built yet; `page.tsx` renders the scene revealed for now.
+
+**Component:** `src/components/HomeScene/HomeScene.tsx` + `.module.css` (client).
+
+**Background -- now an animated GIF.** After trying the static painterly time-of-day system, Aqib provided a pixel-art "cozy night room" loop (`gif (7)`), copied in as `public/images/landscape/home.gif`. It is the homepage background. The five painterly time-of-day stills (lp11 dawn/day/dusk/twilight/night, the new `lp11-twilight.png` = the violet 2:1) are kept behind a `USE_GIF` flag as a fallback: when off, the scene auto-detects local time, crossfades between the five, and shows the manual time selector. When on (current), the gif plays and the selector is hidden.
+
+**Main menu (game-style):**
+- Lower-left on desktop, centered + lower (against the figure's back) on mobile.
+- Four sections (About, Projects, Thoughts, Inspirations). Selected item: gold + bold + glow + `»  «` arrows that ease in.
+- Keyboard up/down arrow navigation; Enter opens. Mouse hover syncs the same highlight.
+- Soft retro UI blips on hover and select, generated with the Web Audio API (no audio files). The same sounds are on the bottom-right links.
+- No title (removed; an sr-only h1 remains for accessibility/SEO).
+
+**Other homepage pieces:**
+- Bottom-right (desktop): LinkedIn, Twitter (X), and email -- all links, Cormorant, with sounds. (Earlier had a live clock; removed for the gif.)
+- Ambient particles drifting up (warm motes), `--particle-glow` token.
+- Custom cursor on the scene: a soft amber dot, a glowing ring on interactive elements (`cursor-dot.svg`, `cursor-ring.svg`).
+- New tokens: `--particle-glow`, `--text-shadow-glow`.
+
+**Deferred / planned:** cozy rain ambient audio (low volume, mute toggle, starts on first interaction -- waiting on a rain loop file); the avatar intro sequence; perf pass on the unoptimized images/gif.
+
+**Verified:** `next build` clean throughout.

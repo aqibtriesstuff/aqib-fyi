@@ -169,3 +169,28 @@ Format: date, what changed, which files were affected.
 
 **Files changed:**
 - `src/app/tokens.css` -- section-identity color tokens updated
+
+---
+
+## 2026-06-14 -- Phase 3 (part 1): Homepage scene and main menu
+
+**What changed:**
+- Built the homepage as a full-screen scene with a game-style main menu (`HomeScene` component). The avatar intro is still to come; the scene renders revealed for now.
+- Background is an animated pixel-art "cozy night room" GIF (`home.gif`). The five painterly time-of-day stills are kept behind a `USE_GIF` flag as a fallback (auto local-time detection, crossfade, and a manual time selector when the gif is off).
+- Main menu: four sections, lower-left on desktop and centered-lower on mobile. Selected item gets gold + bold + glow + `»  «` arrows. Up/down arrow-key navigation, Enter to open, mouse hover in sync.
+- Retro UI blips on hover/select via the Web Audio API (no audio files); same sounds on the bottom-right links.
+- Bottom-right (desktop): LinkedIn, Twitter (X), and email, all links with sounds.
+- Ambient drifting particles, a custom cursor (amber dot + glowing ring on interactive elements).
+- No homepage title (kept an sr-only h1 for accessibility).
+
+**Files added:**
+- `src/components/HomeScene/HomeScene.tsx` and `.module.css`
+- `public/images/landscape/home.gif` (the background)
+- `public/images/landscape/lp11-twilight.png` (5th time-of-day still, the violet 2:1)
+- `public/images/cursor-dot.svg`, `cursor-ring.svg`
+
+**Files changed:**
+- `src/app/page.tsx` -- renders `HomeScene`
+- `src/app/tokens.css` -- added `--particle-glow` and `--text-shadow-glow`
+
+**Deferred:** cozy rain ambient audio (needs a loop file), the avatar intro, and an image/gif optimization pass.
