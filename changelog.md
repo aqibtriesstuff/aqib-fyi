@@ -194,3 +194,34 @@ Format: date, what changed, which files were affected.
 - `src/app/tokens.css` -- added `--particle-glow` and `--text-shadow-glow`
 
 **Deferred:** cozy rain ambient audio (needs a loop file), the avatar intro, and an image/gif optimization pass.
+
+---
+
+## 2026-06-18 -- Phase 3 (part 2): The intro sequence
+
+**What changed:**
+- Built the full character intro that plays over the homepage scene on every load. The homepage now layers `<Intro>` over `<HomeScene>` and only reveals the main menu once the intro finishes (replacing the temporary "revealed for now" stub).
+- The intro: a device-specific flashing entry prompt, a short terminal boot spinner with witty loading verbs, then a typed greeting in "NPC Aqib" voice ending in "how come you're here?".
+- A terminal-style welcome card with two columns: left is an interactive animated ASCII cat with a greeting and captions; right has "what is this?" and "how to get around?" panels (right panel drops on phones).
+- The cat is interactive: it idles and blinks, perks up when the cursor is near, purrs when petted, gets angry (shakes) when over-petted, and bounces on the Konami code. Each state has its own synthesized sound.
+- Five visitor-voice choices answering the greeting, each with a multi-line typed response that leads into exploring the site.
+- A hidden password mechanic on choice 5 ("let's just say... i know things"): the visitor is asked for the "age-old code" (any pspsps variant). Three attempts with escalating sarcastic wrong-answer responses, a special "meow" response, a reverent success sequence, and a dramatic glitch-out punishment on three failures (color flashing, screen invert, glitch-text flood, black silence, slow recovery).
+- Auto-scroll keeps the newest line in view.
+- Replaced the old amber dot/ring cursor with on-theme pixel cursors (default + interactive); a paw cursor pair is added as an unused alternative.
+- Extracted and expanded the Web Audio sound helpers into a shared `src/lib/sounds.ts` so the intro and homepage share one sound language.
+- Removed the old static time-of-day system from HomeScene (the gif is the background now): the time-state flag, image map, auto-detect, crossfade, and manual selector all came out. Removed the now-dead lp11 sky/landscape color tokens.
+
+**Files added:**
+- `src/lib/sounds.ts` -- shared Web Audio sound library
+- `public/images/cursor-pixel.svg`, `cursor-pixel-active.svg` -- the live pixel cursors
+- `public/images/cursor-paw.svg`, `cursor-paw-active.svg` -- alternate paw cursors (not wired in)
+
+**Files changed:**
+- `src/components/Intro/Intro.tsx`, `Intro.module.css` -- the entire intro sequence
+- `src/components/HomeScene/HomeScene.tsx`, `HomeScene.module.css` -- removed the time-of-day system; sounds imported from the shared lib
+- `src/app/page.tsx` -- layers the intro over the scene, reveals the menu on completion
+- `src/app/tokens.css` -- removed dead lp11 sky and landscape-green tokens
+
+**Deferred:** real visitor counter backend, guestbook, password hall of fame (all need a backend); final cursor decision (pixel vs paw); image/gif optimization pass.
+
+**Verified:** `next build` clean -- 8 static routes, no TypeScript errors.

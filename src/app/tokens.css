@@ -13,19 +13,8 @@
   --font-body:    var(--font-dm-sans), system-ui, sans-serif;
   --font-mono:    var(--font-space-mono), 'Courier New', monospace;
 
-  /* ----- Homepage time states (lp11 variants) ----------------- */
-  --sky-dawn:       #f0b490;
-  --sky-day:        #4a90d4;
-  --sky-dusk:       #d06828;
-  --sky-night:      #0a1628;
-  --sky-night-mid:  #12233a;
-  --moon-silver:    #c8d8e8;
-  --lantern-glow:   #e0943a;
-
-  /* ----- Nature and landscape (lp11 greens) ------------------- */
-  --green-deep:     #2a5a1a;
-  --green-mid:      #4a8a30;
-  --green-light:    #7dc855;
+  /* The homepage is an animated gif now, so the old lp11 time-of-day sky
+     and landscape-green tokens were removed. See git history if ever needed. */
 
   /* ----- Warm interiors / Projects (cream morning) ------------
      The Projects panel is now a bright, airy morning study; these warm

@@ -230,3 +230,44 @@ Built the homepage as a full-screen scene with a game-style main menu. The avata
 **Deferred / planned:** cozy rain ambient audio (low volume, mute toggle, starts on first interaction -- waiting on a rain loop file); the avatar intro sequence; perf pass on the unoptimized images/gif.
 
 **Verified:** `next build` clean throughout.
+
+---
+
+## 2026-06-18 -- Phase 3 (part 2): the intro sequence
+
+Built the other half of Phase 3 -- the avatar/character intro that plays over the homepage scene on every load. This was a long, multi-session stretch of writing and iterating copy, building the mechanics, and tuning the feel. The intro now fully replaces the "revealed for now" stub: `page.tsx` layers `<Intro>` over `<HomeScene>`, and the main menu only reveals once the intro calls `onDone`.
+
+**Shared sound library (`src/lib/sounds.ts`) -- NEW.** Pulled the Web Audio blip helpers out of HomeScene into one reusable module so the intro and the scene share the same sound language. HomeScene now imports `playHover`/`playSelect` from here instead of defining its own. Added: `playTick` (a real mechanical-keyboard click -- a bandpassed noise transient plus a pitch-dropping "thock", slightly randomized so it isn't robotic), `playAdvance` (soft line advance), `playClose`, `playPurr` (a low 55Hz triangle with a 24Hz tremolo flutter and fade in/out), `playGrumble` (a short grumpy sawtooth drop), and `unlockAudio` (called on the first user gesture so audio can start -- browsers block the audio context until then).
+
+**The boot + greeting.** The intro opens on a device-specific flashing prompt ("go ahead. press any key or click. see what happens." on desktop; "go ahead. tap anywhere. see what happens." on mobile). First interaction unlocks audio and starts a short boot spinner (braille glyph cycling witty "loading" verbs), then types out the greeting line by line in NPC Aqib's voice, ending on "so tell me, stranger: how come you're here?". Visitor number is a placeholder stored per-browser in localStorage until a real counter is wired. "Days of context" counts from 7 Dec 2003 and grows each load.
+
+**The welcome card.** A terminal-style boot box with two columns. Left: an animated ASCII cat (greeting at top, cat centered, two caption lines grouped at the bottom via `space-between`), captions "well, you're new." / "i wonder how you ended up here." Right: two panels -- "what is this?" (proof i'm trying to think a little) and "how to get around?" (arrow keys or click, esc to bail, "rude, but allowed"). On phones the right panel is dropped and the card stacks.
+
+**The cat (interactive).** Idle animation cycles faces with per-frame hold times so it blinks and glances naturally. It perks up / turns cyan when the cursor is near (tight 8px hit margin). Clicking pets it -- it purrs (pink, `playPurr`). Over-petting (3 quick clicks) makes it angry (red, shakes, `playGrumble`). The Konami code makes it bounce happily (a small easter egg).
+
+**The choices.** Five, in the visitor's voice, each answering "how come you're here?":
+1. "idk, i was just bored"
+2. "a friend sent me"
+3. "call it professional curiosity"
+4. "i got lost... in the beauty of your eyes"
+5. "let's just say... i know things"  (the secret password path)
+
+Each choice types out a multi-line response in NPC Aqib's voice, and each response ends by nudging the visitor toward exploring the site, so the intro flows naturally into the revealed menu. Choice 5's copy went through a lot of iteration -- the constraint was that it had to still read as a (cryptic) answer to "how come you're here?" rather than a random personality claim, while hinting at the password mechanic. Landed on "let's just say... i know things".
+
+**The password mechanic (choice 5).** Picking it routes to a password phase instead of closing. The visitor is asked to "speak the age-old code". The real code is any pspsps variant (`pspsps`, `pss pss`, `ps ps ps`). Three attempts. Wrong answers get escalating sarcastic responses ("heretic. i doubt you actually know the age-old code. this is your final chance."). Typing "meow" gets its own special response (you can call to the masters but only the code summons them). Success types out a reverent reveal sequence (you're a long-forgotten cat whisperer, the masters remember you, always welcome here) and then flows to the menu. Failing all three triggers the punishment.
+
+**The punishment sequence (the big build).** A long, deliberately drastic glitch-out, heavily iterated for feel. After the final wrong answer there's a ~2s beat, then: the screen scrolls to top, a translucent color tint flashes through escalating reds and finally to solid black (`bgPunish`, on its own `.punishTint` div so the overlay stays opaque and the menu never bleeds through), an `invertFlicker` filter snaps the whole screen through inverted/blown-out/hue-shifted states, then the screen goes fully black and floods with red glitch text for a few seconds, then ~3.5s of pure black silence, then a slow fade back to a freshly reset intro. Earlier versions had problems we fixed: the menu gif showing through the tint (fixed with the separate opaque-overlay + tint-div split), red scanlines lingering at the end (removed the scanline pseudo-element), and the intro content staying visible on the black screen (hidden via a delayed `hideDelayed` once the background is solid black).
+
+**Other touches.** Auto-scroll keeps the newest line in view as the conversation grows. Custom on-theme pixel cursors replaced the old amber-dot/ring (`cursor-pixel.svg` default, `cursor-pixel-active.svg` for interactive elements); a paw variant pair (`cursor-paw.svg` / `cursor-paw-active.svg`) is in `public/images/` as an alternative but not currently wired in -- final cursor choice still open. The intro uses its own accent colors (orange, cat-tan, green, cyan, pink) scoped to the overlay, free to roam beyond the site palette.
+
+**HomeScene cleanup.** Removed the entire static time-of-day system now that the background is a gif: the `USE_GIF` flag, the `TimeState` type, the five-image map, the local-time auto-detect, the crossfade layers, and the manual time selector all came out. HomeScene is now just the gif background plus the menu, with sounds imported from the shared lib. `tokens.css` lost the now-dead lp11 sky and landscape-green tokens (kept a note pointing to git history).
+
+**Parked / pending:**
+- Real visitor counter backend (Vercel KV or Upstash Redis) -- placeholder for now.
+- Guestbook and a password "hall of fame" -- both need a backend, parked.
+- Final cursor decision (pixel arrow is live, paw is available).
+- Image/gif optimization pass (still using `unoptimized`).
+
+**Verified:** `next build` clean -- compiles, TypeScript passes, all 8 static routes generate.
+
+**Doc note:** NPC Aqib's voice was documented this session in the planning vault at `03-site-planning/voice-guide.md` (see the vault build-log).

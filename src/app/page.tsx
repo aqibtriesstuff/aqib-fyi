@@ -1,9 +1,17 @@
 'use client';
 
+import { useState } from 'react';
 import HomeScene from '@/components/HomeScene/HomeScene';
+import Intro from '@/components/Intro/Intro';
 
 export default function Home() {
-  // Intro sequence is layered on in the next step; revealed for now so the
-  // scene, time-of-day, toggle, and nav links are all visible to review.
-  return <HomeScene revealed={true} />;
+  // intro plays over the scene on every load; when it ends, the menu reveals
+  const [introDone, setIntroDone] = useState(false);
+
+  return (
+    <>
+      <HomeScene revealed={introDone} />
+      {!introDone && <Intro onDone={() => setIntroDone(true)} />}
+    </>
+  );
 }

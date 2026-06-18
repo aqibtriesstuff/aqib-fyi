@@ -1,164 +1,468 @@
+/* opaque from the first paint so the gif never flashes behind the intro */
 .overlay {
+  /* intro-only accent colors -- free to roam beyond the site palette here */
+  --c-orange: #e8843a;
+  --c-cat: #d99a6a;
+  --c-green: #8ad06a;
+  --c-cyan: #5cc6d6;
+  --c-pink: #e08ab0;
+
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: var(--bg);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: var(--space-12) var(--space-12) var(--space-8);
+  background: var(--warm-dark);
+  opacity: 1;
+  overflow-y: auto;
+  transition: opacity var(--duration-slow) var(--ease-in-out);
+  cursor: url('/images/cursor-pixel.svg') 2 2, auto;
+}
+
+.leaving {
+  opacity: 0;
+}
+
+.terminal {
+  width: 100%;
+  max-width: 680px;
+  font-family: var(--font-mono);
+  font-size: var(--text-body-md);
+  line-height: 1.9;
+}
+
+/* ----- the welcome card (personal take on a terminal boot box) ----- */
+.box {
+  border: 2px solid var(--c-orange);
+  border-radius: var(--radius-md);
+  padding: var(--space-6) var(--space-8);
+}
+
+.boxInner {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.boxLeft {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: var(--sp-8);
-  opacity: 0;
-  transition: opacity 0.6s var(--ease);
-  padding: var(--sp-6);
+  justify-content: space-between;
+  text-align: center;
+  line-height: 1.5;
+  padding-right: var(--space-8);
 }
 
-.overlay.visible {
-  opacity: 1;
+.boxGreet {
+  color: var(--c-orange);
+  font-weight: 700;
+  margin-bottom: var(--space-3);
 }
 
-.overlay.departing {
-  opacity: 0;
-  transition: opacity 0.6s var(--ease);
-}
-
-/* cat */
 .catWrap {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.5s var(--ease), transform 0.5s var(--ease-out);
-  filter: drop-shadow(0 0 40px rgba(200, 145, 74, 0.18));
-}
-
-.catIn {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* dialogue box */
-.box {
-  width: 100%;
-  max-width: 520px;
-  background: var(--rpg-bg);
-  border: 1px solid var(--rpg-border);
-  border-radius: var(--r-md);
-  padding: var(--sp-6);
-  animation: slideUp 0.35s var(--ease-out) both;
   position: relative;
+  display: inline-block;
+  align-self: center;
+  cursor: url('/images/cursor-pixel-active.svg') 2 2, pointer;
 }
 
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.nameTag {
+.cat {
+  margin: 0 0 var(--space-3);
+  color: var(--c-cat);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: var(--sp-3);
+  line-height: 1.05;
+  white-space: pre;
+  transition: color var(--duration-normal) var(--ease-gentle),
+              transform var(--duration-normal) var(--ease-gentle);
 }
 
-.text {
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
-  line-height: 1.7;
-  color: var(--rpg-text);
-  min-height: 1.7em;
+/* the cat's eyes pop and it perks up when it notices your cursor */
+.catCurious {
+  color: var(--c-cyan);
+  transform: translateY(-2px);
 }
 
-.cursor {
-  animation: blink 0.7s step-end infinite;
-  color: var(--accent);
-  margin-left: 1px;
+/* konami: the cat is delighted */
+.catEgg {
+  color: var(--c-green);
+  animation: catBounce 0.5s var(--ease-in-out) infinite;
+}
+
+@keyframes catBounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+/* petted: the cat purrs, warm and lightly wobbling */
+.catPurr {
+  color: var(--c-pink);
+  animation: purrPulse 0.16s linear infinite;
+}
+
+@keyframes purrPulse {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-1px); }
+}
+
+/* over-petted: the cat is annoyed and bristles */
+.catAngry {
+  color: #e0604a;
+  animation: catShake 0.1s linear infinite;
+}
+
+@keyframes catShake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-1.5px); }
+  75%      { transform: translateX(1.5px); }
+}
+
+/* the little "!" / "♪" that appears above the cat */
+.catMark {
+  position: absolute;
+  top: -0.6em;
+  right: -0.4em;
+  color: var(--c-cyan);
+  font-weight: 700;
+}
+
+.catCaption {
+  color: var(--text-faint);
+  font-size: var(--text-body-sm);
+}
+
+.catHint {
+  color: var(--text-faint);
+  font-size: var(--text-body-sm);
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* the days-of-context line flickers while it's "loading" */
+.loadingLine {
+  animation: pulse 1.5s var(--ease-in-out) infinite;
+}
+
+.boxRight {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1em;
+  line-height: 1.5;
+  border-left: 1px solid rgba(232, 132, 58, 0.35);
+  padding-left: var(--space-8);
+}
+
+.panelHeadA {
+  color: var(--c-orange);
+  font-weight: 700;
+  font-size: var(--text-body-sm);
+  letter-spacing: var(--tracking-wide);
+  margin-bottom: var(--space-1);
+}
+
+.panelHeadB {
+  color: var(--c-orange);
+  font-weight: 700;
+  font-size: var(--text-body-sm);
+  letter-spacing: var(--tracking-wide);
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-1);
+  padding-top: var(--space-4);
+  border-top: 1px solid rgba(232, 132, 58, 0.35);
+}
+
+.panelLine {
+  color: var(--text-faint);
+  font-size: var(--text-body-sm);
+}
+
+/* ----- the flowing terminal beneath the card ----- */
+.flow {
+  margin-top: var(--space-6);
+}
+
+.line {
+  white-space: pre-wrap;
+}
+
+/* dim system/boot lines, with a warm prompt */
+.boot {
+  color: var(--text-faint);
+}
+.boot::before {
+  content: '> ';
+  color: var(--amber);
+}
+
+/* the voice -- clear and warm */
+.say {
+  color: var(--parchment);
+}
+
+/* echoed user command */
+.cmd {
+  color: var(--gold-light);
+}
+
+/* the spinner line and its braille glyph */
+.spinnerLine {
+  color: var(--text-faint);
+}
+.spinner {
+  color: var(--gold-light);
+  margin-right: 0.2em;
+}
+
+.caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 2px;
+  background: var(--amber);
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
 }
 
 @keyframes blink {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+  50%      { opacity: 0; }
 }
 
-/* choices */
+/* the flashing prompt before the intro starts (device-specific text) */
+.entryPrompt {
+  color: var(--gold-light);
+  animation: pulse 1.5s var(--ease-in-out) infinite;
+}
+.entryDesktop {
+  display: inline;
+}
+.entryMobile {
+  display: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1; }
+}
+
+/* command-style choices */
 .choices {
+  margin-top: var(--space-5);
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
-  margin-top: var(--sp-5);
-  animation: fadeIn 0.3s var(--ease-out) both;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  gap: var(--space-2);
 }
 
 .choice {
   display: flex;
   align-items: center;
-  gap: var(--sp-3);
+  gap: var(--space-3);
   text-align: left;
   font-family: var(--font-mono);
-  font-size: 0.88rem;
-  color: var(--text-muted);
-  padding: var(--sp-2) var(--sp-3);
-  border-radius: var(--r-sm);
-  transition: color 0.15s, background 0.15s;
+  font-size: var(--text-body-md);
+  color: var(--parchment);
+  transition: color var(--duration-normal) var(--ease-gentle);
+  cursor: url('/images/cursor-pixel-active.svg') 2 2, pointer;
 }
 
-.choice:hover {
-  color: var(--text);
-  background: var(--surface-3);
+.choiceNum {
+  display: inline-block;
+  min-width: 1.6em;
+  text-align: center;
+  color: var(--amber);
+  border: 1px solid var(--amber);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-body-sm);
+  line-height: 1.4;
+  transition: color var(--duration-normal) var(--ease-gentle),
+              background-color var(--duration-normal) var(--ease-gentle),
+              border-color var(--duration-normal) var(--ease-gentle);
 }
 
-.choiceArrow {
-  color: var(--accent);
-  font-size: 1rem;
-  line-height: 1;
-  flex-shrink: 0;
+.choice:hover,
+.choice:focus-visible,
+.choiceSelected {
+  color: var(--gold-light);
+  outline: none;
 }
 
-/* continue hint */
-.continue {
-  position: absolute;
-  bottom: var(--sp-4);
-  right: var(--sp-6);
+.choice:hover .choiceNum,
+.choice:focus-visible .choiceNum,
+.choiceSelected .choiceNum {
+  background-color: var(--gold-light);
+  border-color: var(--gold-light);
+  color: var(--warm-dark);
+}
+
+.pwdLine {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.pwdInput {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(240, 208, 96, 0.4);
+  color: var(--gold-light);
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: var(--text-body-md);
+  line-height: 1.9;
+  outline: none;
+  min-width: 220px;
+  padding: 0 2px;
+  caret-color: var(--amber);
+  cursor: url('/images/cursor-pixel.svg') 2 2, auto;
+}
+
+.pwdInput::placeholder {
   color: var(--text-faint);
-  letter-spacing: 0.06em;
-  transition: color 0.15s;
-  animation: fadeIn 0.4s 0.2s both;
+  opacity: 0.5;
 }
 
-.continue:hover {
-  color: var(--accent);
+.egg {
+  position: fixed;
+  left: var(--space-6);
+  bottom: var(--space-6);
+  font-family: var(--font-mono);
+  font-size: var(--text-body-sm);
+  letter-spacing: var(--tracking-wide);
+  color: var(--c-green);
 }
 
-/* skip */
 .skip {
   position: fixed;
-  bottom: var(--sp-6);
-  right: var(--sp-6);
+  right: var(--space-6);
+  bottom: var(--space-6);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: var(--text-body-sm);
+  letter-spacing: var(--tracking-wide);
   color: var(--text-faint);
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  transition: color 0.15s;
+  transition: color var(--duration-normal) var(--ease-gentle);
+  cursor: url('/images/cursor-pixel-active.svg') 2 2, pointer;
 }
 
-.skip:hover {
-  color: var(--text-muted);
+.skip:hover,
+.skip:focus-visible {
+  color: var(--gold-light);
+  outline: none;
+}
+
+/* ----- punishment sequence ----------------------------------------- */
+.punished {
+  animation: invertFlicker 3s linear 2.5s;
+}
+
+/* translucent color tint sits above intro content, below glitch overlay */
+.punishTint {
+  position: fixed;
+  inset: 0;
+  z-index: 101;
+  pointer-events: none;
+  animation: bgPunish 7s ease-in 0s forwards;
+}
+
+@keyframes bgPunish {
+  0%   { background-color: rgba(20, 10, 5, 0.95); }
+  5%   { background-color: rgba(180, 0, 0, 0.55); }
+  12%  { background-color: rgba(255, 30, 0, 0.70); }
+  18%  { background-color: rgba(140, 0, 0, 0.50); }
+  25%  { background-color: rgba(255, 60, 0, 0.65); }
+  32%  { background-color: rgba(200, 0, 0, 0.60); }
+  38%  { background-color: rgba(255, 20, 0, 0.70); }
+  44%  { background-color: rgba(160, 0, 0, 0.55); }
+  50%  { background-color: rgba(255, 40, 0, 0.65); }
+  56%  { background-color: rgba(100, 0, 0, 0.70); }
+  62%  { background-color: rgba(220, 0, 0, 0.60); }
+  68%  { background-color: rgba(60, 0, 0, 0.80); }
+  76%  { background-color: rgba(20, 0, 0, 0.90); }
+  85%  { background-color: rgba(5, 0, 0, 0.97); }
+  94%  { background-color: rgba(0, 0, 0, 1); }
+  100% { background-color: rgba(0, 0, 0, 1); }
+}
+
+
+@keyframes invertFlicker {
+  0%   { filter: invert(0) brightness(1); animation-timing-function: step-start; }
+  8%   { filter: invert(1) brightness(3); animation-timing-function: step-start; }
+  16%  { filter: invert(0) brightness(0.1); animation-timing-function: step-start; }
+  24%  { filter: invert(1) brightness(2.5) hue-rotate(180deg); animation-timing-function: step-start; }
+  32%  { filter: invert(0) brightness(0.2); animation-timing-function: step-start; }
+  40%  { filter: invert(1) brightness(4) hue-rotate(90deg); animation-timing-function: step-start; }
+  48%  { filter: invert(0) brightness(0.05); animation-timing-function: step-start; }
+  56%  { filter: invert(1) brightness(3) hue-rotate(270deg); animation-timing-function: step-start; }
+  64%  { filter: invert(0) brightness(0.3); animation-timing-function: step-start; }
+  72%  { filter: invert(1) brightness(2) hue-rotate(45deg); animation-timing-function: step-start; }
+  80%  { filter: invert(0) brightness(0.5); animation-timing-function: step-start; }
+  90%  { filter: invert(1) brightness(1.5); animation-timing-function: step-start; }
+  100% { filter: invert(0) brightness(1); }
+}
+
+/* content stays visible through the translucent color phase,
+   then hides once the background has gone solid black at 7s */
+.punished .terminal,
+.punished .skip,
+.punished .egg {
+  animation: hideDelayed 0s 7s forwards;
+}
+
+@keyframes hideDelayed {
+  to { opacity: 0; }
+}
+
+/* slow fade back to normal after punishment -- bg stays black, content fades in */
+.recovering .terminal {
+  animation: fadeInSlow 2.5s ease-out forwards;
+}
+
+@keyframes fadeInSlow {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.glitchOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 102;
+  overflow: hidden;
+  pointer-events: none;
+  padding: var(--space-3);
+  background: #000000;
+}
+
+.glitchText {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #ff2200;
+  opacity: 0.85;
+  word-break: break-all;
+  line-height: 1.15;
+  width: 100%;
+  display: block;
 }
 
 @media (max-width: 600px) {
-  .catWrap svg {
-    width: 120px;
-    height: auto;
+  .overlay {
+    padding: var(--space-8) var(--space-6);
   }
-  .box {
-    padding: var(--sp-5) var(--sp-4);
+  .terminal {
+    font-size: var(--text-body-sm);
+  }
+  /* stack the card; drop the right panel on small screens */
+  .boxInner {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .boxRight {
+    display: none;
+  }
+  .entryDesktop {
+    display: none;
+  }
+  .entryMobile {
+    display: inline;
   }
 }
