@@ -15,7 +15,7 @@ type Panel = {
 };
 
 const PANELS: Panel[] = [
-  { key: 'home', label: 'Home', href: '/', img: '/images/nav/home.png', imgMobile: '/images/nav/mobile/6to1/home.png' },
+  { key: 'home', label: 'Home', href: '/home', img: '/images/nav/home.png', imgMobile: '/images/nav/mobile/6to1/home.png' },
   { key: 'about', label: 'About', href: '/about', img: '/images/nav/about.png', imgMobile: '/images/nav/mobile/6to1/about.png' },
   { key: 'projects', label: 'Projects', href: '/projects', img: '/images/nav/projects.png', imgMobile: '/images/nav/mobile/6to1/projects.png' },
   { key: 'thoughts', label: 'Thoughts', href: '/thoughts', img: '/images/nav/thoughts.jpg', imgMobile: '/images/nav/mobile/6to1/thoughts.png' },
@@ -46,7 +46,7 @@ export default function NavStrip() {
   }, [open]);
 
   // The homepage uses its own floating links, not this nav.
-  if (pathname === '/') return null;
+  if (pathname === '/' || pathname === '/home' || pathname === '/intro') return null;
 
   return (
     <div className={styles.root}>

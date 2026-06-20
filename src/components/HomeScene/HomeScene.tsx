@@ -13,9 +13,48 @@ const NAV = [
   { label: 'Inspirations', href: '/inspirations' },
 ];
 
+function fadeInAudio(audio: HTMLAudioElement, targetVol: number, durationMs: number) {
+  audio.volume = 0;
+  const start = performance.now();
+  const step = () => {
+    const elapsed = performance.now() - start;
+    audio.volume = Math.min(targetVol, (elapsed / durationMs) * targetVol);
+    if (audio.volume < targetVol) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
 export default function HomeScene({ revealed }: { revealed: boolean }) {
   const [selected, setSelected] = useState(-1);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+
+  // ambient rain audio -- autoplay on mount, fade in over 2s
+  useEffect(() => {
+    const audio = new Audio('/sounds/dragon-studio-cozy-midnight-rain-02-448573.mp3');
+    audio.loop = true;
+    audio.volume = 0;
+
+    const startPlaying = () => {
+      void audio.play().then(() => {
+        fadeInAudio(audio, 0.32, 2000);
+      }).catch(() => {});
+    };
+
+    void audio.play().then(() => {
+      fadeInAudio(audio, 0.32, 2000);
+    }).catch(() => {
+      // autoplay blocked -- start on first interaction
+      document.addEventListener('click', startPlaying, { once: true });
+      document.addEventListener('keydown', startPlaying, { once: true });
+    });
+
+    return () => {
+      audio.pause();
+      audio.src = '';
+      document.removeEventListener('click', startPlaying);
+      document.removeEventListener('keydown', startPlaying);
+    };
+  }, []);
 
   // keyboard menu nav (only once the world is revealed)
   useEffect(() => {
@@ -29,8 +68,7 @@ export default function HomeScene({ revealed }: { revealed: boolean }) {
           e.key === 'ArrowDown'
             ? (cur < 0 ? 0 : (cur + 1) % n)
             : (cur < 0 ? n - 1 : (cur - 1 + n) % n);
-        itemRefs.current[next]?.focus();
-        playHover();
+        itemRefs.current[next]?.focus(); // focus fires onFocus which plays the sound
         return next;
       });
     }
@@ -63,24 +101,25 @@ export default function HomeScene({ revealed }: { revealed: boolean }) {
         <h1 className={styles.srOnly}>aqib.fyi</h1>
 
         <nav className={styles.menu} aria-label="Explore">
-          {NAV.map((item, i) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              ref={(el) => {
-                itemRefs.current[i] = el;
-              }}
-              className={`${styles.menuItem} ${selected === i ? styles.menuItemSelected : ''}`}
-              onMouseEnter={() => {
-                setSelected(i);
-                playHover();
-              }}
-              onFocus={() => setSelected(i)}
-              onClick={() => playSelect()}
-            >
-              {item.label}
-            </Link>
-          ))}
+            {NAV.map((item, i) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                ref={(el) => {
+                  itemRefs.current[i] = el;
+                }}
+                className={`${styles.menuItem} ${styles.menuItemEnter} ${selected === i ? styles.menuItemSelected : ''}`}
+                style={{ animationDelay: `${i * 90}ms` }}
+                onMouseEnter={() => {
+                  setSelected(i);
+                  playHover();
+                }}
+                onFocus={() => { setSelected(i); playHover(); }}
+                onClick={() => playSelect()}
+              >
+                {item.label}
+              </Link>
+            ))}
         </nav>
 
         <div className={styles.corner}>

@@ -120,6 +120,22 @@ const PWD_FAIL = 'you charlatan! begone! right neow!!';
 const VERB_HOLD_MS = 1850; // slow enough to read each verb comfortably
 const BOOT_VERB_COUNT = 3;
 
+const CLOSING_POOL: string[] = [
+  'dimming the lights',
+  'hiding the mess',
+  'making it look intentional',
+  'setting the scene',
+  'calibrating the aesthetic',
+  'saving your progress',
+  'buffering the vibes',
+  'putting on the playlist',
+  'straightening the frames',
+  'turning on the ambiance',
+  'syncing with the universe',
+  'loading the good stuff',
+];
+const CLOSING_VERB_HOLD_MS = 1300;
+
 // days since 7 Dec 2003 -- recalculated each load, so it keeps growing
 function daysOfContext(): number {
   return Math.floor((Date.now() - Date.UTC(2003, 11, 7)) / 86400000);
@@ -174,6 +190,8 @@ export default function Intro({ onDone }: { onDone: () => void }) {
   // the boot spinner
   const [bootVerbs, setBootVerbs] = useState<string[]>([]);
   const [bootIdx, setBootIdx] = useState(0);
+  const [closingVerbs, setClosingVerbs] = useState<string[]>([]);
+  const [closingIdx, setClosingIdx] = useState(0);
   const [spinFrame, setSpinFrame] = useState(0);
   const [daysStr, setDaysStr] = useState('');
   // the typed conversation
@@ -183,6 +201,8 @@ export default function Intro({ onDone }: { onDone: () => void }) {
   const [cur, setCur] = useState<Line | null>(null);
   const [typed, setTyped] = useState('');
   const [choiceSel, setChoiceSel] = useState(0);
+  const [choicesRevealedCount, setChoicesRevealedCount] = useState(0);
+  const [choiceTyping, setChoiceTyping] = useState('');
   const [respLines, setRespLines] = useState<string[]>([]);
   const [respIdx, setRespIdx] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState(-1);
@@ -311,6 +331,25 @@ export default function Intro({ onDone }: { onDone: () => void }) {
     return () => clearTimeout(t);
   }, [phase, bootIdx, bootVerbs, startGreet]);
 
+  // typewriter for each choice label, one after another
+  useEffect(() => {
+    if (phase !== 'choices' || choicesRevealedCount >= CHOICES.length) return;
+    const label = CHOICES[choicesRevealedCount].label;
+    if (choiceTyping.length < label.length) {
+      const t = setTimeout(() => {
+        setChoiceTyping(label.slice(0, choiceTyping.length + 1));
+        if (label[choiceTyping.length] !== ' ') playTick();
+      }, 28);
+      return () => clearTimeout(t);
+    }
+    // finished typing this choice -- pause then reveal the next
+    const t = setTimeout(() => {
+      setChoicesRevealedCount((c) => c + 1);
+      setChoiceTyping('');
+    }, 320);
+    return () => clearTimeout(t);
+  }, [phase, choicesRevealedCount, choiceTyping]);
+
   const onLineDone = useCallback(() => {
     setPrinted((p) => (cur ? [...p, cur] : p));
     setTyped('');
@@ -321,8 +360,11 @@ export default function Intro({ onDone }: { onDone: () => void }) {
         setGreetIdx(next);
         setCur(greetLines[next]);
       } else {
+        setPrinted((p) => [...p, { text: '', style: 'say' }]);
         setCur(null);
         setChoiceSel(0);
+        setChoicesRevealedCount(0);
+        setChoiceTyping('');
         setPhase('choices');
       }
     } else if (phase === 'response') {
@@ -359,12 +401,28 @@ export default function Intro({ onDone }: { onDone: () => void }) {
     return () => clearTimeout(t);
   }, [cur, typed, onLineDone]);
 
-  // the final beat, then hand off to the world
+  // pick closing verbs when the closing phase starts
   useEffect(() => {
     if (phase !== 'closing') return;
-    const t = setTimeout(finish, 1000);
+    const picked = [...CLOSING_POOL].sort(() => Math.random() - 0.5).slice(0, 2);
+    setClosingVerbs([...picked, 'see you out there.']);
+    setClosingIdx(0);
+  }, [phase]);
+
+  // cycle through closing verbs, then hand off to the world
+  useEffect(() => {
+    if (phase !== 'closing' || closingVerbs.length === 0) return;
+    const last = closingIdx >= closingVerbs.length - 1;
+    const t = setTimeout(() => {
+      if (last) {
+        finish();
+      } else {
+        playAdvance();
+        setClosingIdx((i) => i + 1);
+      }
+    }, CLOSING_VERB_HOLD_MS);
     return () => clearTimeout(t);
-  }, [phase, finish]);
+  }, [phase, closingIdx, closingVerbs, finish]);
 
   function begin() {
     unlockAudio();
@@ -458,6 +516,8 @@ export default function Intro({ onDone }: { onDone: () => void }) {
           setPwdAttempts(0);
           setPwdDone(false);
           setPasswordSolved(false);
+          setClosingVerbs([]);
+          setClosingIdx(0);
           setPhase('entry');
         }, 13000);
         // t+15500ms: cleanup recovering state
@@ -473,6 +533,10 @@ export default function Intro({ onDone }: { onDone: () => void }) {
     if (phase === 'entry') begin();
     else if (phase === 'boot') startGreet();
     else if (phase === 'greet' || phase === 'response') fastForward();
+    else if (phase === 'choices' && choicesRevealedCount < CHOICES.length) {
+      setChoicesRevealedCount(CHOICES.length);
+      setChoiceTyping('');
+    }
   }
 
   useEffect(() => {
@@ -489,7 +553,12 @@ export default function Intro({ onDone }: { onDone: () => void }) {
         e.preventDefault();
         startGreet();
       } else if (phase === 'choices') {
-        if (e.key === 'ArrowDown') {
+        if (choicesRevealedCount < CHOICES.length) {
+          // still revealing -- any keypress skips to showing all choices
+          e.preventDefault();
+          setChoicesRevealedCount(CHOICES.length);
+          setChoiceTyping('');
+        } else if (e.key === 'ArrowDown') {
           e.preventDefault();
           playHover();
           setChoiceSel((s) => (s + 1) % CHOICES.length);
@@ -583,9 +652,9 @@ export default function Intro({ onDone }: { onDone: () => void }) {
                   </div>
                 </>
               )}
-              {phase === 'closing' && (
+              {phase === 'closing' && closingVerbs.length > 0 && (
                 <div className={`${styles.line} ${styles.spinnerLine}`}>
-                  <span className={styles.spinner}>{SPINNER[spinFrame]}</span> opening up...
+                  <span className={styles.spinner}>{SPINNER[spinFrame]}</span> {closingVerbs[closingIdx]}
                 </div>
               )}
               {cur && (
@@ -611,21 +680,23 @@ export default function Intro({ onDone }: { onDone: () => void }) {
               )}
               {phase === 'choices' && (
                 <div className={styles.choices}>
-                  {CHOICES.map((c, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      className={`${styles.choice} ${choiceSel === i ? styles.choiceSelected : ''}`}
-                      onMouseEnter={() => {
-                        setChoiceSel(i);
-                        playHover();
-                      }}
-                      onClick={() => choose(i)}
-                    >
-                      <span className={styles.choiceNum}>{i + 1}</span>
-                      <span>{c.label}</span>
-                    </button>
-                  ))}
+                  {CHOICES.map((c, i) => {
+                    if (i > choicesRevealedCount) return null;
+                    const isTyping = i === choicesRevealedCount;
+                    const label = isTyping ? choiceTyping : c.label;
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        className={`${styles.choice} ${!isTyping && choiceSel === i ? styles.choiceSelected : ''}`}
+                        onMouseEnter={() => { if (!isTyping) { setChoiceSel(i); playHover(); } }}
+                        onClick={() => { if (!isTyping) choose(i); }}
+                      >
+                        <span className={styles.choiceNum}>{i + 1}</span>
+                        <span>{label}{isTyping && <span className={styles.caret} aria-hidden="true" />}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </>

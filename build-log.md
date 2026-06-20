@@ -271,3 +271,71 @@ Each choice types out a multi-line response in NPC Aqib's voice, and each respon
 **Verified:** `next build` clean -- compiles, TypeScript passes, all 8 static routes generate.
 
 **Doc note:** NPC Aqib's voice was documented this session in the planning vault at `03-site-planning/voice-guide.md` (see the vault build-log).
+
+---
+
+## 2026-06-20 -- Homepage game-menu polish
+
+Three changes in one pass.
+
+**Menu selection state (HomeScene):** The old `»  «` arrows + gold + glow was readable but not unmistakably "cursor is here." Added a 2px gold left border that fades in on selection (a classic game-cursor bar feel) and a warm amber gradient wash that fades from left to right behind the selected item. All items always have consistent `padding` and `border-left: transparent` so nothing shifts when the selection changes. The gradient and border-color are both in the transition list so they animate in smoothly. On mobile the border and background are suppressed since the menu is centered and a left-anchored bar makes no sense there.
+
+**Ambient rain audio (HomeScene):** Wired in `dragon-studio-cozy-midnight-rain-02-448573.mp3` (chosen over the other two for its "cozy midnight rain" naming which matches the lofi night scene; smaller file than the third option). Plays on mount, loops, fades in over 2 seconds via a `requestAnimationFrame` volume ramp. Uses a try/play-then-catch pattern: if autoplay works (likely, since the user already interacted during the intro), the fade starts immediately; if the browser blocks it, a one-time click/keydown listener picks it up. Cleans up (pauses, clears `src`) on unmount.
+
+**Hover and select sounds (`src/lib/sounds.ts`):** Experimented with replacing the square-wave blips -- tried softer triangle-wave chimes, then other unique variants. User did not like any of the changes. Fully reverted to the original square-wave blips. Final state is identical to the previous commit: `playHover` is 523Hz square (55ms), `playSelect` is two square tones (659Hz + 880Hz) staggered 70ms apart.
+
+**StrictMode double-sound fix (HomeScene):** `playHover()` was being called inside the `setSelected()` state updater, which React StrictMode invokes twice in dev mode -- causing keyboard navigation to fire the sound twice and sound different from mouse hover. Fixed by moving `playHover()` outside the updater and using `onFocus` as the unified sound trigger: both keyboard nav (which calls `.focus()` on the next item) and mouse hover fire `onFocus`, which plays the sound exactly once.
+
+**Menu slide-in entrance animation:** Each menu item now slides in from the left on mount via a `menuSlideIn` keyframe (opacity 0 + translateX(-18px) to final position), staggered by 90ms per item via inline `animationDelay`. The `» «` arrows from the previous selection state were removed entirely -- the gold border and gradient replace them.
+
+---
+
+## 2026-06-20 -- Mobile menu position fix
+
+Iterated on the mobile menu position to center it against the figure's back in the gif. Attempts in order: `top: 72%` (too high, About near neck), `top: 78%` (too low), `top: 74%` with `object-position: 50% center` (too far right). Final settled state: `top: 74%` with `object-position: 46% center`. User confirmed this was correct.
+
+---
+
+## 2026-06-20 -- Route split: /intro and /home as separate pages
+
+Split the homepage into two distinct routes:
+- `/` redirects to `/intro` (server-side redirect, no flash)
+- `/intro` (`src/app/intro/page.tsx`) renders the Intro component; on completion calls `router.push('/home')`
+- `/home` (`src/app/home/page.tsx`) renders HomeScene with `revealed={true}` (no state to manage since the intro already ran)
+
+NavStrip updated to hide on `/`, `/home`, and `/intro`. Home panel href updated from `/` to `/home`.
+
+This separates the intro and home scene into independent concerns rather than state-managed overlays on a single page.
+
+---
+
+## 2026-06-20 -- Intro: typewriter choices, closing verb pool, blank separator
+
+**Typewriter choices:** Choices now appear one by one with a letter-by-letter typewriter effect (28ms per character, 320ms pause between choices). The currently-typing choice shows the amber block cursor (`.caret`). A choice that is still being typed cannot be hovered or clicked. Once a choice finishes typing, it becomes interactive. Any click or keypress during the reveal skips to showing all choices immediately. Uses two new state variables (`choicesRevealedCount`, `choiceTyping`) cycling through `CHOICES` in a `useEffect`.
+
+**Blank line separator:** A blank `say`-style line is pushed to `printed` when the greeting finishes and before the choices phase starts, giving visual breathing room between the greeting paragraph and the choice list.
+
+**Closing verb pool:** The final phase ("opening up..." with the spinner) was replaced with a small pool of witty verbs (`CLOSING_POOL`). Two are picked randomly, then a fixed "see you out there." closes it out. Each holds for 1300ms with a `playAdvance()` sound between them. The spinner braille glyph still spins throughout. Closing state is also reset on punishment recovery.
+
+---
+
+## 2026-06-20 -- Inner pages design direction: research session
+
+Reviewed five reference portfolios to inform the inner page direction before building: imtiyazahmed.com (card-based modular, pixel/retro, sound, hidden surprises), mishtisharma.com, ritvik.io (digital garden / wiki feel, non-linear, personal), hardeep.space, jia.sc (journal-like, minimal, raw authenticity, daily logs, anime-style illustration alongside photos).
+
+Key observations:
+- The portfolios that hit hardest (jia, ritvik) are the least designed -- they feel honest and specific to one person
+- Imtiyaz is the closest relative to what is already built (pixel art, retro, sound, hidden surprises, personality)
+- Specificity beats polish across all five
+
+Key decisions from the session:
+- Terminal aesthetic stays in intro and home only. The inner pages will NOT look like a terminal. Aqib is non-technical; the terminal is a personality choice for those two screens, not a statement about who he is.
+- The intro → lofi home transition feels right and natural. No changes needed there.
+- Everything about the nav and the color palette is on the table for inner pages -- nothing is locked.
+
+Open questions carried forward (to decide before building any inner page):
+1. Section image treatment: full atmospheric header that fades into content? Minimal accent? Sidelined?
+2. Nav: replace the illustrated NavStrip with a simpler text-based persistent top bar?
+3. Aesthetic unity: one consistent warm inner-world feel vs. each section having its own distinct mood driven by its image and signature color?
+
+Direction leaning toward: one consistent warm inner-page structure, each section with a distinct mood from its image and color, tied together by consistent typography/spacing/amber accent. Not terminal. Not full Ghibli-maximalist. Warm, personal, content-forward -- closer to jia.sc and ritvik.io than to a dark minimal portfolio.

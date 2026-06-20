@@ -225,3 +225,32 @@ Format: date, what changed, which files were affected.
 **Deferred:** real visitor counter backend, guestbook, password hall of fame (all need a backend); final cursor decision (pixel vs paw); image/gif optimization pass.
 
 **Verified:** `next build` clean -- 8 static routes, no TypeScript errors.
+
+---
+
+## 2026-06-20 -- Phase 3 polish: menu, audio, intro improvements, route split
+
+**What changed:**
+- Menu selection state: removed the `» «` arrows entirely. Added a 2px gold left border + warm amber gradient wash on the selected item. Added staggered slide-in entrance animation for all menu items on mount (opacity + translateX, 90ms delay per item).
+- Ambient rain audio wired into HomeScene: loops, fades in over 2 seconds via requestAnimationFrame volume ramp, falls back to first-interaction start if autoplay is blocked. File: `dragon-studio-cozy-midnight-rain-02-448573.mp3`.
+- Fixed a React StrictMode double-sound bug: `playHover()` moved outside the `setSelected()` updater; `onFocus` is now the unified sound trigger for both keyboard and mouse navigation paths.
+- Sounds experimented with (triangle waves, other variants) but fully reverted to original square-wave blips at user's request. `sounds.ts` is functionally unchanged from the previous commit.
+- Mobile menu position finalized: `top: 74%`, `object-position: 46% center`, `gap: var(--space-1)`.
+- Route split: `/` now redirects to `/intro`; intro and home scene are separate routes (`/intro`, `/home`). NavStrip hides on all three and Home panel href updated to `/home`.
+- Intro choices now reveal one by one with a letter-by-letter typewriter effect (28ms/char, 320ms between choices, tick sound per character). A blank line separates the greeting from the choices. Any click/keypress during reveal skips to all choices immediately.
+- Closing phase in the intro replaced with a witty closing verb pool: two random verbs from `CLOSING_POOL` + a fixed "see you out there." cycle at 1300ms each before handing off to the home screen.
+
+**Files changed:**
+- `src/components/HomeScene/HomeScene.tsx` -- rain audio, slide-in animation, onFocus sound trigger, StrictMode fix
+- `src/components/HomeScene/HomeScene.module.css` -- selection state (border + gradient), entrance animation keyframe, mobile position
+- `src/components/Intro/Intro.tsx` -- typewriter choices, blank separator, closing verb pool, skip logic
+- `src/components/NavStrip/NavStrip.tsx` -- Home href to `/home`, hides on `/home` and `/intro`
+- `src/app/page.tsx` -- server redirect to `/intro`
+- `build-log.md` -- full session history and direction notes
+
+**Files added:**
+- `src/app/intro/page.tsx` -- intro route
+- `src/app/home/page.tsx` -- home scene route
+- `public/sounds/dragon-studio-cozy-midnight-rain-02-448573.mp3` -- the active rain loop
+- `public/sounds/dragon-studio-cozy-midnight-rain-05-448574.mp3` -- unused alternative
+- `public/sounds/liecio-calming-rain-257596.mp3` -- unused alternative

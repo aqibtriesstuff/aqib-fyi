@@ -86,6 +86,15 @@
   gap: var(--space-3);
 }
 
+@keyframes menuSlideIn {
+  from { opacity: 0; transform: translateX(-18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.menuItemEnter {
+  animation: menuSlideIn 0.45s var(--ease-gentle) both;
+}
+
 .menuItem {
   font-family: var(--font-display);
   font-size: var(--text-display-md);
@@ -93,46 +102,26 @@
   letter-spacing: var(--tracking-wide);
   color: var(--parchment);
   text-shadow: var(--text-shadow-on-image);
+  padding: 0.12em 0.5em;
+  border-left: 2px solid transparent;
   transition: color var(--duration-normal) var(--ease-gentle),
-              text-shadow var(--duration-normal) var(--ease-gentle);
+              text-shadow var(--duration-normal) var(--ease-gentle),
+              background var(--duration-normal) var(--ease-gentle),
+              border-color var(--duration-normal) var(--ease-gentle);
   cursor: url('/images/cursor-pixel-active.svg') 2 2, pointer;
-}
-
-/* arrows that ease in around the selected item (space reserved so no shift) */
-.menuItem::before,
-.menuItem::after {
-  color: var(--gold-light);
-  opacity: 0;
-  display: inline-block;
-  transition: opacity var(--duration-normal) var(--ease-gentle),
-              transform var(--duration-normal) var(--ease-gentle);
-}
-
-.menuItem::before {
-  content: '\00bb\00a0';
-  transform: translateX(-5px);
-}
-
-.menuItem::after {
-  content: '\00a0\00ab';
-  transform: translateX(5px);
 }
 
 .menuItem:focus-visible {
   outline: none;
 }
 
-/* highlighted item (hover / keyboard / focus): gold + glow + arrows */
+/* highlighted item (hover / keyboard / focus): gold + glow + left bar + warm wash + arrows */
 .menuItemSelected {
   color: var(--gold-light);
   font-weight: var(--weight-bold);
   text-shadow: var(--text-shadow-glow);
-}
-
-.menuItemSelected::before,
-.menuItemSelected::after {
-  opacity: 1;
-  transform: translateX(0);
+  border-left: 2px solid rgba(224, 184, 74, 0.65);
+  background: linear-gradient(90deg, rgba(200, 112, 48, 0.18) 0%, transparent 75%);
 }
 
 /* desktop: socials + 24h clock, bottom-right, aligned with the menu's base */
@@ -174,21 +163,28 @@
   .corner {
     display: none;
   }
-  /* center the figure (he sits ~46% across) when cropped to a tall screen */
+  /* center the figure on a tall screen */
   .gifLayer {
-    object-position: 45% center;
+    object-position: 46% center;
   }
   .menu {
     left: 0;
     right: 0;
     bottom: auto;
-    top: 72%;
+    top: 74%;
     transform: translateY(-50%);
     align-items: center;
     text-align: center;
     padding: 0 var(--space-6);
+    gap: var(--space-1);
   }
   .menuItem {
     font-size: var(--text-display-sm);
+    border-left: none;
+    padding: 0.12em 0.5em;
+  }
+  .menuItemSelected {
+    border-left: none;
+    background: none;
   }
 }
